@@ -1,0 +1,1951 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Knowledge Vault · Midnight · deep dark</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css" />
+<style>
+  /* ── DESIGN TOKENS ─────────────────────────────────────────── */
+    :root, [data-theme="dark"], [data-theme="dark"] {
+    --kv-bg: #0a0a0f;
+    --kv-surface: #11121a;
+    --kv-surface-2: #181a26;
+    --kv-surface-hover: #20222f;
+    --kv-text: #e8eaf2;
+    --kv-text-muted: #8a8fa3;
+    --kv-text-subtle: #555a6e;
+    --kv-border: #1f2230;
+    --kv-border-strong: #2e3245;
+    --kv-accent: #8b7cf6;
+    --kv-accent-soft: #1e1a3a;
+    --kv-shadow: rgba(0, 0, 0, 0.6);
+    --kv-danger: #f87171;
+    --kv-danger-soft: #2a1414;
+    --kv-success: #4ade80;
+    --kv-success-soft: #0f2418;
+  }
+
+
+  /* ── BASE ─────────────────────────────────────────────────── */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'IBM Plex Sans Thai', system-ui, sans-serif;
+    background: var(--kv-bg);
+    color: var(--kv-text);
+    transition: background 0.3s ease, color 0.3s ease;
+    min-height: 100vh;
+  }
+  button { font-family: inherit; cursor: pointer; }
+  input, textarea, select { font-family: inherit; color: inherit; }
+  .kv-display { font-family: 'Fraunces', 'IBM Plex Sans Thai', serif; font-optical-sizing: auto; }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--kv-border); border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--kv-border-strong); }
+
+  /* ── LAYOUT ───────────────────────────────────────────────── */
+  .kv-app { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .kv-sidebar {
+    width: 240px;
+    background: var(--kv-surface);
+    border-right: 1px solid var(--kv-border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .kv-sidebar.hidden { display: none; }
+  .kv-brand { padding: 1.5rem 1.25rem 1rem; display: flex; align-items: center; gap: 10px; }
+  .kv-logo {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--kv-accent) 0%, color-mix(in oklab, var(--kv-accent) 70%, #000) 100%);
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 12px color-mix(in oklab, var(--kv-accent) 35%, transparent);
+  }
+  .kv-logo i { font-size: 17px; color: #fff; }
+  .kv-brand-title { font-weight: 600; font-size: 17px; line-height: 1.1; letter-spacing: -0.01em; }
+  .kv-brand-sub { font-size: 11px; color: var(--kv-text-muted); margin-top: 1px; }
+
+  .kv-section-label {
+    padding: 0.5rem 1.25rem 0.25rem;
+    font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--kv-text-subtle); text-transform: uppercase;
+  }
+  .kv-nav { flex: 1; overflow-y: auto; padding: 0.25rem 0.75rem 1rem; }
+  .kv-cat-item {
+    display: flex; align-items: center; gap: 10px; width: 100%;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    text-align: left;
+    color: var(--kv-text);
+    margin-bottom: 1px;
+    position: relative;
+    transition: background 0.15s ease;
+    font-size: 13px;
+  }
+  .kv-cat-item:hover { background: var(--kv-surface-hover); }
+  .kv-cat-item.active { background: var(--kv-surface-2); }
+  .kv-cat-item.active::before {
+    content: ""; position: absolute; left: 0; top: 8px; bottom: 8px;
+    width: 3px; border-radius: 2px;
+    background: var(--cat-color, var(--kv-accent));
+  }
+  .kv-cat-item .label { flex: 1; font-weight: 400; }
+  .kv-cat-item.active .label { font-weight: 600; }
+  .kv-cat-item .count { font-size: 11px; color: var(--kv-text-muted); font-weight: 500; padding: 1px 7px; border-radius: 20px; }
+  .kv-cat-item.active .count { background: var(--kv-surface); }
+  .kv-cat-item .ti { font-size: 16px; flex-shrink: 0; }
+
+  .kv-starred-btn { padding: 0 0.75rem 0.5rem; }
+  .kv-starred-btn .kv-cat-item.active { background: var(--kv-accent-soft); border-color: var(--kv-accent); color: var(--kv-accent); }
+  .kv-starred-btn .ti { color: var(--kv-accent) !important; }
+
+  .kv-sidebar-footer {
+    padding: 0.85rem 1.25rem;
+    border-top: 1px solid var(--kv-border);
+    font-size: 11px;
+    color: var(--kv-text-muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .kv-sidebar-footer i { font-size: 13px; color: var(--kv-success); }
+
+  /* Main */
+  .kv-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+
+  /* Header */
+  .kv-header {
+    background: var(--kv-surface);
+    border-bottom: 1px solid var(--kv-border);
+    padding: 0.85rem 1.25rem;
+    display: flex; align-items: center; gap: 10px;
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: blur(10px);
+  }
+  .kv-search-wrap { flex: 1; position: relative; max-width: 580px; }
+  .kv-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; color: var(--kv-text-muted); }
+  .kv-search {
+    width: 100%; padding-left: 38px; padding-right: 14px;
+    height: 38px; box-sizing: border-box;
+    border-radius: 9px;
+    border: 1px solid var(--kv-border);
+    background: var(--kv-surface-2);
+    font-size: 13.5px;
+    color: var(--kv-text);
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .kv-search:focus { border-color: var(--kv-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--kv-accent) 25%, transparent); }
+  .kv-search-clear {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    background: transparent; border: none; padding: 4px;
+    color: var(--kv-text-muted); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .kv-search-clear:hover { background: var(--kv-surface-hover); }
+  .kv-search-clear.hidden { display: none; }
+
+  .kv-icon-btn {
+    border: none; background: transparent;
+    color: var(--kv-text-muted);
+    border-radius: 8px;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s, transform 0.15s;
+  }
+  .kv-icon-btn:hover { background: var(--kv-surface-hover); }
+  .kv-icon-btn:active { transform: scale(0.92); }
+  .kv-icon-btn i { font-size: 18px; }
+
+  .kv-viewmode-toggle {
+    display: flex; gap: 2px; padding: 3px;
+    background: var(--kv-surface-2);
+    border: 1px solid var(--kv-border);
+    border-radius: 9px;
+  }
+  .kv-viewmode-btn {
+    width: 30px; height: 28px;
+    border: none; background: transparent;
+    border-radius: 6px;
+    color: var(--kv-text-muted);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+  }
+  .kv-viewmode-btn.active { background: var(--kv-surface); color: var(--kv-text); }
+  .kv-viewmode-btn i { font-size: 16px; }
+
+  .kv-sort-btn {
+    display: flex; align-items: center; gap: 6px;
+    height: 38px; padding: 0 12px;
+    background: var(--kv-surface-2);
+    border: 1px solid var(--kv-border);
+    border-radius: 9px;
+    color: var(--kv-text); font-size: 12.5px; font-weight: 500;
+  }
+  .kv-sort-btn .ti-chevron-down { font-size: 12px; }
+  .kv-sort-btn .ti:first-child { font-size: 14px; }
+
+  .kv-add-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 0 14px; height: 38px;
+    background: var(--kv-accent); color: #fff;
+    border: none; border-radius: 9px;
+    font-size: 13.5px; font-weight: 600;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: filter 0.15s, transform 0.15s, box-shadow 0.15s;
+  }
+  .kv-add-btn:hover { filter: brightness(1.08); box-shadow: 0 4px 12px color-mix(in oklab, var(--kv-accent) 35%, transparent); }
+  .kv-add-btn:active { transform: scale(0.97); }
+  .kv-add-btn i { font-size: 16px; }
+
+  /* Dropdown */
+  .kv-dropdown { position: relative; }
+  .kv-dropdown-menu {
+    position: absolute; right: 0; top: 44px;
+    background: var(--kv-surface);
+    border: 1px solid var(--kv-border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px var(--kv-shadow);
+    padding: 6px; min-width: 180px;
+    z-index: 20;
+    animation: kvFadeIn 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .kv-dropdown-menu.hidden { display: none; }
+  .kv-menu-item {
+    display: flex; align-items: center; gap: 10px;
+    width: 100%; padding: 8px 10px;
+    border-radius: 7px; border: none; background: none;
+    text-align: left;
+    color: var(--kv-text); font-size: 13px;
+    transition: background 0.15s;
+  }
+  .kv-menu-item:hover { background: var(--kv-surface-hover); }
+  .kv-menu-item.active { color: var(--kv-accent); font-weight: 600; }
+  .kv-menu-item i { font-size: 15px; color: var(--kv-text-muted); }
+  .kv-menu-item.active i { color: var(--kv-accent); }
+  .kv-menu-item .label { flex: 1; }
+  .kv-menu-divider { height: 1px; background: var(--kv-border); margin: 4px 6px; }
+
+  .kbd {
+    font-size: 10px; padding: 1px 5px;
+    background: var(--kv-surface-2);
+    border: 1px solid var(--kv-border);
+    border-radius: 4px;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    color: var(--kv-text-muted);
+  }
+
+  /* Main content */
+  .kv-content { flex: 1; padding: 1.75rem 1.75rem 3rem; overflow-y: auto; }
+
+  /* Hero */
+  .kv-hero { margin-bottom: 1.75rem; }
+  .kv-hero-row { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .kv-hero-title { font-size: 32px; font-weight: 500; letter-spacing: -0.025em; line-height: 1.1; margin: 0 0 4px; }
+  .kv-hero-sub { font-size: 13.5px; color: var(--kv-text-muted); }
+  .kv-stats-btn {
+    display: flex; align-items: center; gap: 6px;
+    height: 34px; padding: 0 12px;
+    background: var(--kv-surface);
+    border: 1px solid var(--kv-border);
+    border-radius: 8px;
+    color: var(--kv-text); font-size: 12.5px; font-weight: 500;
+  }
+  .kv-stats-btn i { font-size: 14px; color: var(--kv-accent); }
+  .kv-stats-btn:hover { background: var(--kv-surface-hover); }
+
+  .kv-stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+  .kv-stat-card {
+    background: var(--kv-surface);
+    border-radius: 12px;
+    border: 1px solid var(--kv-border);
+    padding: 0.95rem 1.1rem;
+    display: flex; align-items: center; gap: 14px;
+    animation: kvStagger 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .kv-stat-icon {
+    width: 38px; height: 38px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .kv-stat-icon i { font-size: 18px; }
+  .kv-stat-label { font-size: 11.5px; color: var(--kv-text-muted); letter-spacing: 0.02em; font-weight: 500; }
+  .kv-stat-val { font-size: 24px; font-weight: 500; line-height: 1.1; margin-top: 1px; }
+
+  .kv-result-count { margin-bottom: 1.25rem; display: flex; align-items: baseline; gap: 8px; }
+  .kv-result-count .num { font-size: 28px; font-weight: 500; letter-spacing: -0.02em; }
+  .kv-result-count .text { font-size: 13px; color: var(--kv-text-muted); }
+
+  /* Tips */
+  .kv-tips-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .kv-tips-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .kv-card {
+    background: var(--kv-surface);
+    border: 1px solid var(--kv-border);
+    border-radius: 12px;
+    padding: 1.1rem 1.2rem 1rem;
+    display: flex; flex-direction: column; gap: 10px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    animation: kvStagger 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .kv-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px var(--kv-shadow); border-color: var(--kv-border-strong); }
+  .kv-card::before {
+    content: ""; position: absolute; left: 0; top: 14px; bottom: 14px;
+    width: 3px; border-radius: 2px;
+    background: var(--cat-color, var(--kv-accent));
+  }
+  .kv-card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+  .kv-card-cat { display: flex; align-items: center; gap: 6px; min-width: 0; }
+  .kv-card-cat i { font-size: 13px; flex-shrink: 0; }
+  .kv-card-cat span { font-size: 11.5px; color: var(--kv-text-muted); font-weight: 500; letter-spacing: 0.01em; }
+  .kv-star-btn { width: 28px; height: 28px; border: none; background: transparent; color: var(--kv-text-subtle); border-radius: 6px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+  .kv-star-btn:hover { background: var(--kv-surface-hover); }
+  .kv-star-btn.starred { color: #eab308; }
+  .kv-star-btn i { font-size: 16px; }
+  .kv-card-title { font-weight: 600; font-size: 16px; line-height: 1.3; margin: 0; letter-spacing: -0.01em; color: var(--kv-text); }
+  .kv-card-body { font-size: 13.5px; color: var(--kv-text-muted); line-height: 1.65; margin: 0; flex: 1; }
+  .kv-card-body code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.88em; background: var(--kv-surface-2); border: 1px solid var(--kv-border); border-radius: 5px; padding: 1px 6px; color: var(--kv-text); }
+  .kv-card-body strong { font-weight: 700; color: var(--kv-text); }
+  .kv-card-body em { font-style: italic; }
+  .kv-card-body a { color: var(--kv-accent); text-decoration: underline; }
+  .kv-card-body ul { margin: 4px 0; padding-left: 20px; }
+  .kv-card-body li { margin-bottom: 2px; }
+  mark { background: var(--kv-accent-soft); color: var(--kv-accent); border-radius: 3px; padding: 0 2px; font-weight: 600; }
+
+  .kv-tags { display: flex; flex-wrap: wrap; gap: 5px; }
+  .kv-tag {
+    font-size: 11px; padding: 2px 8px;
+    background: var(--kv-surface-2);
+    border-radius: 20px;
+    color: var(--kv-text-muted);
+    border: 1px solid var(--kv-border);
+    font-weight: 500;
+  }
+
+  .kv-linked { display: flex; flex-wrap: wrap; gap: 5px; padding-top: 8px; border-top: 1px dashed var(--kv-border); align-items: center; }
+  .kv-linked-label { font-size: 11px; color: var(--kv-text-subtle); display: flex; align-items: center; gap: 4px; }
+  .kv-linked-label i { font-size: 12px; }
+  .kv-link-btn {
+    font-size: 11px; padding: 2px 8px;
+    background: var(--kv-surface-2);
+    border-radius: 6px;
+    color: var(--kv-text);
+    border: 1px solid var(--kv-border);
+    display: inline-flex; align-items: center; gap: 4px;
+  }
+  .kv-link-btn:hover { background: var(--kv-surface-hover); }
+  .kv-link-btn i { font-size: 11px; }
+
+  .kv-card-actions { display: flex; gap: 4px; margin-top: 6px; justify-content: flex-end; padding-top: 8px; border-top: 1px solid var(--kv-border); }
+  .kv-action-btn {
+    border: none; background: transparent;
+    color: var(--kv-text-muted);
+    border-radius: 6px;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .kv-action-btn:hover { background: var(--kv-surface-hover); }
+  .kv-action-btn.danger { color: var(--kv-danger); }
+  .kv-action-btn i { font-size: 14px; }
+
+  /* List row */
+  .kv-row {
+    background: var(--kv-surface);
+    border: 1px solid var(--kv-border);
+    border-radius: 10px;
+    padding: 0.85rem 1.1rem;
+    display: flex; align-items: flex-start; gap: 14px;
+    position: relative; cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    animation: kvStagger 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .kv-row:hover { border-color: var(--kv-border-strong); box-shadow: 0 4px 12px var(--kv-shadow); }
+  .kv-row-bar { width: 4px; align-self: stretch; border-radius: 2px; margin-left: -4px; margin-right: 4px; background: var(--cat-color, var(--kv-accent)); }
+  .kv-row-content { flex: 1; min-width: 0; }
+  .kv-row-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; flex-wrap: wrap; }
+  .kv-row-meta i { font-size: 13px; }
+  .kv-row-meta .cat-name { font-size: 11px; color: var(--kv-text-muted); font-weight: 500; }
+  .kv-row-title { font-weight: 600; font-size: 15.5px; line-height: 1.3; margin: 0; }
+  .kv-row-body { font-size: 13px; color: var(--kv-text-muted); line-height: 1.6; margin: 4px 0 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .kv-row.expanded .kv-row-body { display: block; -webkit-line-clamp: unset; }
+  .kv-row-actions { display: flex; gap: 2px; flex-shrink: 0; }
+
+  /* Empty */
+  .kv-empty { text-align: center; padding: 4rem 1rem; color: var(--kv-text-muted); animation: kvFadeIn 0.35s ease both; }
+  .kv-empty-icon {
+    width: 68px; height: 68px; border-radius: 50%;
+    background: var(--kv-surface);
+    border: 1px dashed var(--kv-border-strong);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 16px;
+  }
+  .kv-empty-icon i { font-size: 28px; color: var(--kv-text-subtle); }
+  .kv-empty-title { font-size: 22px; font-weight: 500; color: var(--kv-text); letter-spacing: -0.015em; margin-bottom: 6px; }
+  .kv-empty-sub { font-size: 13.5px; margin-bottom: 20px; }
+  .kv-empty-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+  .kv-btn-secondary {
+    padding: 0 14px; height: 36px;
+    border: 1px solid var(--kv-border);
+    background: var(--kv-surface);
+    border-radius: 8px;
+    font-size: 13px; color: var(--kv-text); font-weight: 500;
+  }
+  .kv-btn-secondary:hover { background: var(--kv-surface-hover); }
+  .kv-btn-primary {
+    padding: 0 16px; height: 36px;
+    background: var(--kv-accent); color: #fff;
+    border: none; border-radius: 8px;
+    font-size: 13px; font-weight: 600;
+    display: flex; align-items: center; gap: 6px;
+    transition: filter 0.15s, box-shadow 0.15s;
+  }
+  .kv-btn-primary:hover { filter: brightness(1.08); box-shadow: 0 4px 12px color-mix(in oklab, var(--kv-accent) 35%, transparent); }
+  .kv-btn-primary i { font-size: 15px; }
+
+  /* Modal */
+  .kv-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 100; padding: 1rem;
+    animation: kvFadeIn 0.2s ease both;
+  }
+  .kv-overlay.hidden { display: none; }
+  .kv-modal {
+    background: var(--kv-surface);
+    border-radius: 14px;
+    border: 1px solid var(--kv-border);
+    width: 100%; max-width: 560px;
+    padding: 1.5rem 1.6rem;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+    max-height: 92vh; overflow-y: auto;
+  }
+  .kv-modal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .kv-modal-title { margin: 0; font-size: 21px; font-weight: 600; letter-spacing: -0.015em; }
+  .kv-modal-sub { font-size: 12.5px; color: var(--kv-text-muted); margin-top: 2px; }
+
+  .kv-field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 1rem; position: relative; }
+  .kv-field-label { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .kv-field-label label { font-size: 12.5px; font-weight: 600; color: var(--kv-text-muted); letter-spacing: 0.01em; }
+  .kv-field-required { color: var(--kv-accent); margin-left: 3px; }
+  .kv-field-hint { font-size: 11px; color: var(--kv-text-subtle); font-family: ui-monospace, monospace; }
+
+  .kv-input {
+    height: 38px;
+    border-radius: 9px;
+    border: 1px solid var(--kv-border);
+    background: var(--kv-surface-2);
+    padding: 0 12px;
+    font-size: 13.5px;
+    color: var(--kv-text);
+    width: 100%;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .kv-input:focus { border-color: var(--kv-accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--kv-accent) 25%, transparent); }
+  textarea.kv-input { height: auto; padding: 10px 12px; resize: vertical; line-height: 1.65; min-height: 100px; }
+
+  .kv-tag-row { display: flex; gap: 6px; }
+  .kv-suggest {
+    position: absolute; top: 70px; left: 0; right: 0;
+    background: var(--kv-surface);
+    border: 1px solid var(--kv-border);
+    border-radius: 9px;
+    box-shadow: 0 8px 24px var(--kv-shadow);
+    padding: 4px; z-index: 5;
+    max-height: 220px; overflow-y: auto;
+    animation: kvFadeIn 0.2s ease both;
+  }
+  .kv-suggest.hidden { display: none; }
+  .kv-suggest-item {
+    display: flex; align-items: center; gap: 8px;
+    width: 100%; padding: 7px 10px;
+    border-radius: 6px; border: none; background: none;
+    text-align: left;
+    color: var(--kv-text); font-size: 13px;
+    transition: background 0.15s;
+  }
+  .kv-suggest-item:hover { background: var(--kv-surface-hover); }
+  .kv-suggest-item i { font-size: 13px; color: var(--kv-text-muted); flex-shrink: 0; }
+  .kv-suggest-item .ellipsis { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .kv-suggest-item .small { font-size: 10.5px; color: var(--kv-text-muted); }
+
+  .kv-removable-tag { display: flex; align-items: center; gap: 4px; }
+  .kv-removable-tag button { border: none; background: none; padding: 0; color: inherit; line-height: 1; font-size: 15px; opacity: 0.6; }
+  .kv-removable-tag button:hover { opacity: 1; }
+
+  .kv-linked-pill {
+    font-size: 12px; padding: 3px 8px 3px 6px;
+    background: var(--kv-surface-2);
+    border-radius: 6px;
+    color: var(--kv-text);
+    border: 1px solid var(--kv-border);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .kv-linked-pill i { font-size: 12px; }
+
+  .kv-star-toggle {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13.5px;
+    padding: 8px 10px; border-radius: 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+  .kv-star-toggle.active { background: var(--kv-accent-soft); border-color: var(--kv-accent); }
+  .kv-star-toggle.active .kv-star-toggle-text { color: var(--kv-accent); font-weight: 600; }
+  .kv-star-toggle input { accent-color: var(--kv-accent); }
+  .kv-star-toggle i { font-size: 16px; color: #eab308; }
+
+  .kv-modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 1.25rem; }
+  .kv-btn {
+    padding: 0 18px; height: 38px;
+    border-radius: 9px;
+    font-size: 13.5px; font-weight: 500;
+    transition: filter 0.15s, background 0.15s, box-shadow 0.15s, transform 0.15s;
+  }
+  .kv-btn-ghost { border: 1px solid var(--kv-border); background: var(--kv-surface); color: var(--kv-text); }
+  .kv-btn-ghost:hover { background: var(--kv-surface-hover); }
+  .kv-btn-accent { background: var(--kv-accent); color: #fff; border: none; padding: 0 22px; font-weight: 600; }
+  .kv-btn-accent:hover { filter: brightness(1.08); box-shadow: 0 4px 12px color-mix(in oklab, var(--kv-accent) 35%, transparent); }
+  .kv-btn-accent:active { transform: scale(0.97); }
+  .kv-btn-accent:disabled { background: var(--kv-surface-2); color: var(--kv-text-subtle); cursor: not-allowed; box-shadow: none; filter: none; }
+  .kv-btn-danger { background: var(--kv-danger); color: #fff; border: none; padding: 0 22px; font-weight: 600; }
+  .kv-btn-danger:hover { filter: brightness(1.08); }
+
+  /* Confirm modal */
+  .kv-confirm {
+    background: var(--kv-surface);
+    border-radius: 14px;
+    border: 1px solid var(--kv-border);
+    padding: 1.75rem 1.5rem 1.25rem;
+    max-width: 380px; width: 90%;
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.3);
+  }
+  .kv-confirm-icon {
+    width: 52px; height: 52px; border-radius: 50%;
+    background: var(--kv-danger-soft);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .kv-confirm-icon i { font-size: 24px; color: var(--kv-danger); }
+  .kv-confirm-title { font-weight: 600; font-size: 18px; margin: 0 0 6px; letter-spacing: -0.01em; }
+  .kv-confirm-text { font-size: 13px; color: var(--kv-text-muted); margin: 0 0 1.25rem; line-height: 1.5; }
+
+  /* Stats modal */
+  .kv-stats-modal { max-width: 640px; }
+  .kv-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+  .kv-stats-tile {
+    background: var(--kv-surface-2);
+    border-radius: 10px;
+    border: 1px solid var(--kv-border);
+    padding: 10px 12px;
+  }
+  .kv-stats-tile-label { font-size: 11px; color: var(--kv-text-muted); font-weight: 500; }
+  .kv-stats-tile-val { font-size: 22px; font-weight: 500; line-height: 1.1; margin-top: 2px; font-family: 'Fraunces', serif; }
+
+  .kv-stats-section-label {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--kv-text-subtle); text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .kv-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .kv-bar-label { display: flex; align-items: center; gap: 6px; width: 130px; flex-shrink: 0; }
+  .kv-bar-label i { font-size: 13px; }
+  .kv-bar-label span { font-size: 12.5px; }
+  .kv-bar-track { flex: 1; height: 18px; background: var(--kv-surface-2); border-radius: 5px; overflow: hidden; }
+  .kv-bar-fill { height: 100%; border-radius: 5px; transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1); }
+  .kv-bar-num { width: 60px; text-align: right; font-size: 12px; color: var(--kv-text-muted); font-family: ui-monospace, monospace; }
+  .kv-bar-num .pct { color: var(--kv-text-subtle); }
+
+  .kv-tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+  .kv-cloud-tag {
+    font-size: 12px; padding: 4px 10px;
+    background: var(--kv-surface-2);
+    border-radius: 20px;
+    color: var(--kv-text);
+    border: 1px solid var(--kv-border);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .kv-cloud-count {
+    font-size: 10.5px; font-weight: 600;
+    background: var(--kv-accent); color: #fff;
+    padding: 1px 6px; border-radius: 10px;
+  }
+
+  .kv-insights {
+    background: var(--kv-accent-soft);
+    border-radius: 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--kv-accent);
+    margin-top: 18px;
+  }
+  .kv-insights h3 {
+    font-size: 12px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--kv-accent); text-transform: uppercase;
+    margin: 0 0 8px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .kv-insights h3 i { font-size: 14px; }
+  .kv-insights ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--kv-text); line-height: 1.7; }
+
+  /* Shortcuts modal */
+  .kv-shortcut-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 4px;
+    border-bottom: 1px solid var(--kv-border);
+  }
+  .kv-shortcut-row:last-child { border-bottom: none; }
+  .kv-shortcut-row span { font-size: 13.5px; color: var(--kv-text); }
+  .kv-shortcut-keys { display: flex; gap: 4px; }
+  .kv-shortcut-keys .kbd { font-size: 11px; padding: 2px 7px; color: var(--kv-text); }
+
+  /* Toast */
+  .kv-toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    background: var(--kv-surface);
+    color: var(--kv-text);
+    border: 1px solid var(--kv-border);
+    padding: 0.7rem 0.85rem 0.7rem 1rem;
+    border-radius: 12px;
+    font-size: 13.5px; font-weight: 500;
+    z-index: 300;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.18);
+    display: flex; align-items: center; gap: 12px;
+    min-width: 220px;
+    animation: kvToastIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .kv-toast.hidden { display: none; }
+  .kv-toast i.toast-icon { font-size: 16px; color: var(--kv-success); }
+  .kv-toast.danger i.toast-icon { color: var(--kv-danger); }
+  .kv-toast .msg { flex: 1; }
+  .kv-toast-action {
+    background: transparent; border: none; padding: 4px 8px;
+    font-size: 13px; font-weight: 600;
+    color: var(--kv-accent); border-radius: 6px;
+  }
+  .kv-toast-action:hover { background: var(--kv-accent-soft); }
+  .kv-toast-close {
+    width: 24px; height: 24px; border-radius: 6px;
+    border: none; background: transparent;
+    color: var(--kv-text-muted);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .kv-toast-close:hover { background: var(--kv-surface-hover); }
+  .kv-toast-close i { font-size: 14px; }
+
+  /* Animations */
+  @keyframes kvFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes kvStagger {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes kvToastIn {
+    from { opacity: 0; transform: translate(-50%, 20px) scale(0.95); }
+    to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Mobile */
+  @media (max-width: 768px) {
+    .kv-sidebar:not(.hidden) { position: fixed; inset: 0 auto 0 0; z-index: 50; box-shadow: 4px 0 20px rgba(0,0,0,0.15); }
+    .kv-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 49; }
+    .kv-backdrop.hidden { display: none; }
+    .kv-content { padding: 1rem 1rem 2rem; }
+    .kv-stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .kv-add-btn span { display: none; }
+    .kv-sort-btn span { display: none; }
+  }
+
+  /* ── ATELIER OVERRIDES ── */
+
+  body { font-feature-settings: "ss01", "cv11"; }
+  .kv-display { font-weight: 400; letter-spacing: -0.02em; }
+  .kv-hero-title { font-family: 'Fraunces', 'IBM Plex Sans Thai', serif; font-weight: 400; font-size: 40px; letter-spacing: -0.03em; }
+  .kv-brand-title { font-family: 'Fraunces', serif; font-weight: 500; font-size: 19px; letter-spacing: -0.02em; }
+  .kv-card-title { font-family: 'Fraunces', 'IBM Plex Sans Thai', serif; font-weight: 500; font-size: 17.5px; letter-spacing: -0.015em; }
+  .kv-row-title { font-family: 'Fraunces', serif; font-weight: 500; font-size: 16.5px; letter-spacing: -0.01em; }
+  .kv-card, .kv-row, .kv-stat-card { border-radius: 4px; }
+  .kv-card { padding: 1.25rem 1.35rem 1.1rem; }
+  .kv-card::before { width: 2px; top: 18px; bottom: 18px; }
+  .kv-stat-val { font-family: 'Fraunces', serif; font-weight: 400; font-size: 30px; }
+  .kv-content { padding: 2.5rem 2.25rem 4rem; max-width: 1280px; }
+  .kv-hero { margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid var(--kv-border); }
+  .kv-tips-grid { gap: 18px; }
+  .kv-logo { border-radius: 4px; background: var(--kv-text); }
+  .kv-add-btn, .kv-btn-primary, .kv-btn-accent { border-radius: 4px; }
+  .kv-search { border-radius: 4px; }
+  .kv-sidebar { background: var(--kv-bg); border-right-color: var(--kv-border); }
+  .kv-section-label { font-family: 'Fraunces', serif; font-weight: 500; font-size: 11px; text-transform: none; letter-spacing: 0.04em; font-style: italic; color: var(--kv-text-muted); }
+
+
+  /* ── MIDNIGHT OVERRIDES ───────────────────────────────────── */
+  body {
+    background:
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(139, 124, 246, 0.12), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 100%, rgba(99, 102, 241, 0.08), transparent 60%),
+      var(--kv-bg);
+    background-attachment: fixed;
+  }
+  .kv-sidebar {
+    background: linear-gradient(180deg, rgba(24, 26, 38, 0.6), rgba(17, 18, 26, 0.4));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-right: 1px solid var(--kv-border);
+  }
+  .kv-card, .kv-note-card {
+    background: linear-gradient(180deg, rgba(24, 26, 38, 0.7), rgba(17, 18, 26, 0.5));
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--kv-border);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.03) inset, 0 8px 24px -12px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .kv-card:hover, .kv-note-card:hover {
+    border-color: var(--kv-border-strong);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px -12px rgba(139, 124, 246, 0.25);
+  }
+  .kv-btn-primary, button[class*="primary"] {
+    background: linear-gradient(135deg, #8b7cf6, #6366f1) !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 4px 16px -4px rgba(139, 124, 246, 0.5);
+  }
+  .kv-btn-primary:hover, button[class*="primary"]:hover {
+    box-shadow: 0 6px 24px -4px rgba(139, 124, 246, 0.7);
+  }
+  .kv-tag {
+    background: rgba(139, 124, 246, 0.12);
+    border: 1px solid rgba(139, 124, 246, 0.25);
+    color: #b4a8ff;
+  }
+  input, textarea, select {
+    background: rgba(10, 10, 15, 0.6) !important;
+    border: 1px solid var(--kv-border) !important;
+    color: var(--kv-text) !important;
+  }
+  input:focus, textarea:focus, select:focus {
+    border-color: var(--kv-accent) !important;
+    box-shadow: 0 0 0 3px rgba(139, 124, 246, 0.15) !important;
+    outline: none !important;
+  }
+  .kv-display {
+    background: linear-gradient(135deg, #fff, #b4a8ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  ::-webkit-scrollbar-thumb { background: var(--kv-border-strong); }
+
+</style>
+</head>
+<body>
+
+<div class="kv-app">
+  <div id="backdrop" class="kv-backdrop hidden"></div>
+
+  <aside id="sidebar" class="kv-sidebar">
+    <div class="kv-brand">
+      <div class="kv-logo"><i class="ti ti-bulb-filled"></i></div>
+      <div>
+        <div class="kv-display kv-brand-title">Knowledge Vault</div>
+        <div class="kv-brand-sub">คลังเทคนิคส่วนตัว</div>
+      </div>
+    </div>
+    <div class="kv-starred-btn" id="starred-toggle"></div>
+    <div class="kv-section-label">หมวดหมู่</div>
+    <nav class="kv-nav" id="nav"></nav>
+    <div class="kv-sidebar-footer">
+      <i class="ti ti-cloud-check"></i>
+      บันทึกในเครื่อง
+    </div>
+  </aside>
+
+  <div class="kv-main">
+    <header class="kv-header">
+      <button class="kv-icon-btn" id="toggle-sidebar" aria-label="toggle sidebar"><i class="ti ti-layout-sidebar"></i></button>
+
+      <div class="kv-search-wrap">
+        <i class="ti ti-search kv-search-icon"></i>
+        <input id="search" class="kv-search" placeholder="ค้นหาเทคนิค... (กด / หรือ Cmd+K)" />
+        <button id="search-clear" class="kv-search-clear hidden" aria-label="clear search"><i class="ti ti-x"></i></button>
+      </div>
+
+      <div class="kv-viewmode-toggle">
+        <button class="kv-viewmode-btn active" data-view="grid" aria-label="grid view"><i class="ti ti-layout-grid"></i></button>
+        <button class="kv-viewmode-btn" data-view="list" aria-label="list view"><i class="ti ti-list"></i></button>
+      </div>
+
+      <div class="kv-dropdown">
+        <button class="kv-sort-btn" id="sort-btn" aria-label="sort">
+          <i class="ti" id="sort-icon"></i>
+          <span id="sort-label"></span>
+          <i class="ti ti-chevron-down"></i>
+        </button>
+        <div class="kv-dropdown-menu hidden" id="sort-menu"></div>
+      </div>
+
+      <button class="kv-icon-btn" id="theme-toggle" aria-label="toggle theme" title="สลับธีม (T)"><i class="ti" id="theme-icon"></i></button>
+
+      <div class="kv-dropdown">
+        <button class="kv-icon-btn" id="more-btn" aria-label="more options"><i class="ti ti-dots-vertical"></i></button>
+        <div class="kv-dropdown-menu hidden" id="more-menu">
+          <button class="kv-menu-item" data-action="stats"><i class="ti ti-chart-pie"></i><span class="label">สถิติเชิงลึก</span><span class="kbd">S</span></button>
+          <div class="kv-menu-divider"></div>
+          <button class="kv-menu-item" data-action="export"><i class="ti ti-download"></i><span class="label">ส่งออก JSON</span></button>
+          <button class="kv-menu-item" data-action="import"><i class="ti ti-upload"></i><span class="label">นำเข้า JSON</span></button>
+          <div class="kv-menu-divider"></div>
+          <button class="kv-menu-item" data-action="shortcuts"><i class="ti ti-keyboard"></i><span class="label">ทางลัด</span><span class="kbd">?</span></button>
+        </div>
+      </div>
+
+      <button class="kv-add-btn" id="add-btn"><i class="ti ti-plus"></i><span>เพิ่มเทคนิค</span></button>
+    </header>
+
+    <main class="kv-content">
+      <div id="hero"></div>
+      <div id="tips-container"></div>
+    </main>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept="application/json,.json" style="display:none" />
+
+<!-- Modals (lazy populated) -->
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// CATEGORIES
+// ═══════════════════════════════════════════════════════════════════════════
+const CATEGORIES = [
+  { id: "all",          label: "ทั้งหมด",         icon: "ti-stack-2",      color: "#94a3b8" },
+  { id: "time",         label: "บริหารเวลา",      icon: "ti-hourglass",    color: "#f59e0b" },
+  { id: "study",        label: "การเรียน",        icon: "ti-school",       color: "#10b981" },
+  { id: "premiere",     label: "Premiere Pro",   icon: "ti-scissors",     color: "#a855f7" },
+  { id: "aftereffects", label: "After Effects",  icon: "ti-wand",         color: "#8b5cf6" },
+  { id: "photoshop",    label: "Photoshop",      icon: "ti-brush",        color: "#3b82f6" },
+  { id: "audio",        label: "เสียง & ดนตรี",   icon: "ti-waveform",     color: "#ec4899" },
+  { id: "photography",  label: "ถ่ายภาพ/วิดีโอ",   icon: "ti-camera",       color: "#06b6d4" },
+  { id: "ai",           label: "AI Prompting",   icon: "ti-prompt",       color: "#7c3aed" },
+  { id: "productivity", label: "Productivity",   icon: "ti-target-arrow", color: "#22c55e" },
+  { id: "presentation", label: "นำเสนองาน",       icon: "ti-speakerphone", color: "#ef4444" },
+  { id: "colorgrade",   label: "Color Grading",  icon: "ti-color-swatch", color: "#f97316" },
+  { id: "other",        label: "อื่นๆ",           icon: "ti-bookmark",     color: "#94a3b8" },
+];
+const CAT_MAP = Object.fromEntries(CATEGORIES.map(c => [c.id, c]));
+
+const SORT_OPTIONS = [
+  { id: "newest",  label: "ใหม่สุดก่อน",     icon: "ti-arrow-down" },
+  { id: "oldest",  label: "เก่าสุดก่อน",     icon: "ti-arrow-up" },
+  { id: "az",      label: "ก-ฮ / A-Z",      icon: "ti-sort-ascending-letters" },
+  { id: "za",      label: "ฮ-ก / Z-A",      icon: "ti-sort-descending-letters" },
+  { id: "starred", label: "ติดดาวก่อน",      icon: "ti-star" },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// DEFAULT TIPS — 68 ข้อ
+// ═══════════════════════════════════════════════════════════════════════════
+const DEFAULT_TIPS = [
+  // เวลา
+  { id: "t1", categoryId: "time", title: "Pomodoro Technique", body: "ทำงาน 25 นาที พัก 5 นาที ทำครบ 4 รอบแล้วพัก 15-30 นาที ช่วยให้โฟกัสได้นานขึ้นโดยไม่เบิร์นเอาต์", tags: ["โฟกัส", "productivity"], starred: true },
+  { id: "t2", categoryId: "time", title: "Time Blocking", body: "จองเวลาในปฏิทินสำหรับแต่ละงานล่วงหน้า แทนที่จะทำ to-do list อย่างเดียว ทำให้รู้ว่าวันนี้จะทำอะไรได้จริง", tags: ["วางแผน"], starred: false },
+  { id: "t3", categoryId: "time", title: "2-Minute Rule", body: "ถ้างานไหนทำเสร็จได้ใน 2 นาที ให้ทำทันทีเลย อย่าเก็บไว้ใน list มันจะยิ่งสะสม", tags: ["GTD"], starred: false },
+  { id: "t4", categoryId: "time", title: "Eat the Frog", body: "ทำงานที่ยากหรือไม่อยากทำที่สุดก่อนเป็นอย่างแรกของวัน เพราะ willpower ของเราสูงสุดตอนเช้า", tags: ["เช้า", "วินัย"], starred: false },
+  { id: "t5", categoryId: "time", title: "Eisenhower Matrix", body: "แบ่งงานเป็น 4 ช่อง: ด่วน+สำคัญ (ทำเลย) / ไม่ด่วน+สำคัญ (วางแผน) / ด่วน+ไม่สำคัญ (delegate) / ไม่ด่วน+ไม่สำคัญ (ตัดทิ้ง)", tags: ["ลำดับความสำคัญ"], starred: false },
+  { id: "t44", categoryId: "time", title: "Parkinson's Law", body: "งานจะขยายเต็มเวลาที่ให้ — ถ้าให้ 1 อาทิตย์ จะใช้ 1 อาทิตย์ ลองตั้ง deadline ที่สั้นลง 30% จะบังคับตัวเองให้โฟกัส", tags: ["deadline"], starred: false },
+  { id: "t45", categoryId: "time", title: "Theme Days", body: "กำหนดวันละ 1 ธีม เช่น จันทร์=meeting, อังคาร=deep work, พุธ=creative ลด context switching ที่กินสมาธิเยอะที่สุด", tags: ["วางแผน"], starred: false },
+
+  // เรียน
+  { id: "t6", categoryId: "study", title: "Active Recall", body: "แทนที่จะอ่านซ้ำ ให้ปิดหนังสือแล้วลองนึกว่าจำอะไรได้บ้าง สมองจะจำได้ดีกว่าการอ่านซ้ำ 3 รอบ", tags: ["จำ", "ทบทวน"], starred: true },
+  { id: "t7", categoryId: "study", title: "Spaced Repetition", body: "ทบทวนเนื้อหาในช่วงห่างที่เพิ่มขึ้นเรื่อยๆ เช่น 1 วัน → 3 วัน → 7 วัน → 21 วัน ใช้แอป Anki ช่วยได้ดี", tags: ["จำ", "Anki"], starred: false },
+  { id: "t8", categoryId: "study", title: "Feynman Technique", body: "ลองอธิบายเรื่องที่เพิ่งเรียนให้คนอื่น (หรือเด็ก) ฟังด้วยภาษาง่ายๆ ตรงไหนติดขัด ตรงนั้นคือจุดที่ยังไม่เข้าใจจริง", tags: ["เข้าใจ", "สอน"], starred: true },
+  { id: "t9", categoryId: "study", title: "Interleaving", body: "สลับวิชาหรือหัวข้อในการเรียน แทนที่จะอัดวิชาเดียวยาวๆ จะช่วยให้สมองเชื่อมโยงและจำได้ลึกขึ้น", tags: ["เทคนิคเรียน"], starred: false },
+  { id: "t10", categoryId: "study", title: "Cornell Note-taking", body: "แบ่งกระดาษเป็น 3 ส่วน: คอลัมน์ keywords (ซ้าย), notes หลัก (ขวา), สรุป (ล่าง) ช่วยให้รีวิวเร็วและจัดระเบียบความคิด", tags: ["จดโน้ต"], starred: false },
+  { id: "t46", categoryId: "study", title: "Pre-testing Effect", body: "ลองทำข้อสอบ **ก่อน** อ่านเนื้อหา แม้จะตอบผิดหมด สมองจะ prime ให้รับข้อมูลได้ดีขึ้นมากเมื่ออ่านจริง", tags: ["จำ"], starred: false },
+  { id: "t47", categoryId: "study", title: "Dual Coding", body: "รับข้อมูลสองช่องทางพร้อมกัน — อ่านพร้อมวาด mind map, ฟัง podcast พร้อมเดิน จะจำได้ดีกว่าใช้ช่องทางเดียว", tags: ["จำ", "เทคนิคเรียน"], starred: false },
+
+  // Premiere
+  { id: "t11", categoryId: "premiere", title: "J-Cut & L-Cut", body: "J-Cut: เสียงของคลิปถัดไปเข้าก่อนภาพ / L-Cut: เสียงคลิปปัจจุบันยังดังอยู่แม้ภาพเปลี่ยนแล้ว ทำให้ตัดต่อลื่นไหลขึ้นมาก", tags: ["ตัดต่อ", "เสียง"], starred: true },
+  { id: "t12", categoryId: "premiere", title: "Proxy Workflow", body: "สร้างไฟล์ Proxy (ขนาดเล็ก) จากไฟล์ 4K เพื่อให้ตัดต่อลื่น แล้วค่อย Relink ไฟล์ต้นฉบับตอน Export", tags: ["4K", "workflow"], starred: false },
+  { id: "t13", categoryId: "premiere", title: "Nested Sequences", body: "รวมหลายคลิปเป็น sequence ย่อยแล้ว nest เข้ามาใน timeline หลัก ใช้เอฟเฟกต์รวดเดียว ไม่ต้องไล่ทีละคลิป", tags: ["จัดระเบียบ"], starred: false },
+  { id: "t14", categoryId: "premiere", title: "Keyboard Shortcuts ที่ต้องจำ", body: "Q/W = ตัดคลิปต้น/ท้าย, Ctrl+K = cut ที่ playhead, Shift+E = enable/disable, J/K/L = play backward/stop/forward — เร็วขึ้น 5 เท่า", tags: ["shortcut", "เร็ว"], starred: true },
+  { id: "t15", categoryId: "premiere", title: "Adjustment Layer สำหรับสี", body: "ใส่ Lumetri Color บน Adjustment Layer ครอบหลายคลิป แทนใส่ทีละคลิป — แก้ครั้งเดียว เปลี่ยนหมด", tags: ["สี", "workflow"], starred: false },
+  { id: "t48", categoryId: "premiere", title: "Multicam Editing", body: "Sync หลายกล้องด้วย audio (`Synchronize Clips → Audio`) แล้วสร้าง Multicam source — ตัดกล้องสลับด้วยเลข `1, 2, 3` บน timeline เร็วมาก", tags: ["multicam"], starred: false },
+  { id: "t49", categoryId: "premiere", title: "Speed Ramp ด้วย Time Remapping", body: "คลิกขวา clip → Show Clip Keyframes → Time Remapping → Speed ลากคีย์เฟรมห่างกันเพื่อสร้าง **smooth ramp** (ลื่นกว่า Speed/Duration ปกติ)", tags: ["slowmo", "ramp"], starred: false },
+
+  // AE
+  { id: "t16", categoryId: "aftereffects", title: "Ease & Wiggle Expression", body: "ใช้ expression: `easeIn(time, t1, t2, v1, v2)` หรือ `wiggle(freq, amp)` เพื่อสร้าง animation ที่ดูเป็นธรรมชาติมากขึ้น", tags: ["expression", "animation"], starred: true },
+  { id: "t17", categoryId: "aftereffects", title: "Pre-compose เพื่อจัดระเบียบ", body: "เมื่อ layer เยอะ ให้ Pre-compose กลุ่ม layer ที่เกี่ยวข้องกัน (Shift+Ctrl+C) จะทำให้ timeline สะอาดและแก้ไขง่ายขึ้น", tags: ["จัดระเบียบ"], starred: false },
+  { id: "t18", categoryId: "aftereffects", title: "Trim Paths สำหรับ Stroke Animation", body: "ใช้ Trim Paths กับ Shape Layer เพื่อทำเส้นวาดเอง (signature, line drawing animation) คีย์เฟรม End จาก 0% → 100%", tags: ["stroke", "shape"], starred: false },
+  { id: "t19", categoryId: "aftereffects", title: "Motion Blur เปิดทุกครั้ง", body: "เปิด Motion Blur (ไอคอนวงกลม) ที่ทั้ง composition และ layer ที่ขยับ จะทำให้ animation ดูเป็นมืออาชีพทันที", tags: ["polish"], starred: true },
+  { id: "t50", categoryId: "aftereffects", title: "Graph Editor คือเพื่อนแท้", body: "กด `Shift+F3` เปิด Graph Editor ปรับ Bezier curves ของคีย์เฟรม animation จะลื่นเป็นธรรมชาติแบบมืออาชีพ ไม่ใช่ขยับเป็นจังหวะแข็ง", tags: ["easing", "animation"], starred: true },
+  { id: "t51", categoryId: "aftereffects", title: "Null Object เป็น Parent", body: "สร้าง Null Object แล้วให้ layer อื่นๆ parent กับมัน (เกลียวก้นหอย) ขยับ/หมุน/scale ทั้งกลุ่มได้จากจุดเดียว — แก้ animation ง่ายขึ้นมาก", tags: ["rigging", "parent"], starred: false },
+
+  // Photoshop
+  { id: "t20", categoryId: "photoshop", title: "Non-Destructive Editing", body: "ใช้ Adjustment Layer และ Smart Object เสมอ แทนที่จะแก้ไข Layer ต้นฉบับโดยตรง จะได้กลับมาแก้ได้ทุกเมื่อ", tags: ["workflow", "smart object"], starred: true },
+  { id: "t21", categoryId: "photoshop", title: "Blend Mode Trick", body: "ลอง Overlay หรือ Soft Light กับ Layer สีเพื่อให้สีกลมกลืนกับภาพ ใช้ Luminosity สำหรับปรับสีโดยไม่เปลี่ยน Brightness", tags: ["blend mode", "สี"], starred: false },
+  { id: "t22", categoryId: "photoshop", title: "Frequency Separation รีทัชผิว", body: "แยกผิวเป็น Low Frequency (โทนสี) และ High Frequency (รายละเอียด) ทำให้รีทัชผิวได้เนียนโดยไม่เสียพื้นผิว", tags: ["retouch", "portrait"], starred: false },
+  { id: "t23", categoryId: "photoshop", title: "Clipping Mask แทน Layer Mask", body: "เวลาอยากให้ปรับสีเฉพาะ layer ใต้ลงไป กด Alt+คลิกระหว่าง layer เพื่อ Clip มันลง — เร็วกว่าวาด mask เอง", tags: ["mask", "workflow"], starred: false },
+  { id: "t52", categoryId: "photoshop", title: "Camera Raw Filter", body: "`Filter → Camera Raw Filter` (Shift+Ctrl+A) ใช้ panel เดียวกับ Lightroom ปรับ tone/color ได้ลึกกว่า Curves พื้นฐาน ใช้กับ Smart Object ได้ด้วย", tags: ["raw", "tone"], starred: true },
+  { id: "t53", categoryId: "photoshop", title: "Select Subject + Refine Hair", body: "`Select → Subject` (AI เลือกอัตโนมัติ) แล้ว Select and Mask → ใช้ **Refine Edge Brush** ลากบนเส้นผม เพื่อแยกได้เนียนกว่า Pen Tool", tags: ["selection", "ตัดต่อ"], starred: false },
+
+  // เสียง
+  { id: "t24", categoryId: "audio", title: "Room Tone Recording", body: "บันทึกเสียงห้องเปล่า (ambient) ไว้ 30 วินาที แล้วใช้ใน Audition/Premiere เพื่อ Fill เสียงในช่วงที่เงียบผิดปกติ", tags: ["mixing"], starred: false },
+  { id: "t25", categoryId: "audio", title: "High-pass Filter ที่ 80Hz", body: "ตัดความถี่ต่ำที่ไม่จำเป็นบนเสียงพูดทุกครั้ง (80-100Hz) ลดเสียง rumble และทำให้เสียงพูดสะอาดขึ้นทันที", tags: ["EQ", "พูด"], starred: true },
+  { id: "t26", categoryId: "audio", title: "LUFS Standard สำหรับ Platform", body: "YouTube: -14 LUFS, Spotify: -14 LUFS, TikTok: -8 ถึง -10 LUFS, Podcast: -16 LUFS — Master ให้ตรงกับปลายทาง", tags: ["mastering", "ส่งงาน"], starred: false },
+  { id: "t54", categoryId: "audio", title: "Compressor Settings พื้นฐาน", body: "เสียงพูด: **Ratio 3:1, Attack 5-10ms, Release 50-100ms**, Threshold ให้ลดประมาณ 3-6dB — ทำให้เสียงเสมอกัน ไม่ดังเบาสลับ", tags: ["mixing", "พูด"], starred: false },
+  { id: "t55", categoryId: "audio", title: "De-esser ก่อน Compressor", body: "เสียง 'ส' แตก/แสบหู ใส่ De-esser ที่ 5-8 kHz ก่อน compressor เสมอ (compressor จะดัน 's' ให้แย่กว่าเดิม)", tags: ["mixing"], starred: false },
+
+  // ถ่ายภาพ
+  { id: "t27", categoryId: "photography", title: "Rule of Thirds", body: "แบ่งภาพเป็น 3x3 แล้ววาง Subject ไว้ที่จุดตัดของเส้น ภาพจะดูสมดุลและน่าสนใจกว่าวางตรงกลาง", tags: ["องค์ประกอบ"], starred: false },
+  { id: "t28", categoryId: "photography", title: "180° Shutter Rule (วิดีโอ)", body: "Shutter speed = 1/(FPS × 2) เช่น ถ่าย 24fps ใช้ 1/50, ถ่าย 60fps ใช้ 1/125 จะได้ motion blur ที่เป็นธรรมชาติ", tags: ["วิดีโอ", "exposure"], starred: true },
+  { id: "t29", categoryId: "photography", title: "Golden Hour", body: "ถ่ายช่วง 1 ชม.หลังพระอาทิตย์ขึ้น และ 1 ชม.ก่อนตก แสงนุ่ม โทนอุ่น เงาไม่แข็ง — ภาพสวยขึ้นเองโดยไม่ต้องแต่ง", tags: ["แสง", "เวลา"], starred: false },
+  { id: "t30", categoryId: "photography", title: "Expose to the Right (ETTR)", body: "ตั้งค่า exposure ให้ histogram เอียงขวา (สว่างขึ้นนิด) จะเก็บข้อมูลในเงาได้มากกว่า แล้วค่อยลดใน post", tags: ["RAW", "exposure"], starred: false },
+  { id: "t56", categoryId: "photography", title: "Sunny 16 Rule", body: "วันแดดจัด ตั้ง **f/16, shutter = 1/ISO** เช่น ISO 100 ใช้ 1/100 — ใช้ได้แม้ไม่มี light meter ตามมือถือ", tags: ["exposure", "manual"], starred: false },
+  { id: "t57", categoryId: "photography", title: "Hyperfocal Distance", body: "ถ่ายแลนด์สเคปอยากให้ชัดทั้งใกล้-ไกล โฟกัสที่ 1/3 ของระยะแทนที่จะ infinity ใช้แอป PhotoPills คำนวณให้แม่นยำ", tags: ["landscape", "โฟกัส"], starred: false },
+
+  // AI
+  { id: "t31", categoryId: "ai", title: "Role Prompting", body: "บอก AI ว่าให้เล่นบทบาทอะไร เช่น 'Act as a senior UX designer with 10 years experience' ก่อนถามคำถาม ผลลัพธ์จะดีขึ้นมาก", tags: ["ChatGPT", "Claude"], starred: true },
+  { id: "t32", categoryId: "ai", title: "Chain of Thought", body: "ขอให้ AI 'คิดทีละขั้น' (think step by step) ก่อนตอบ จะลด hallucination และได้คำตอบที่มีเหตุผลรองรับ", tags: ["reasoning"], starred: true },
+  { id: "t33", categoryId: "ai", title: "Few-shot Examples", body: "ให้ตัวอย่าง input/output ที่อยากได้ 2-3 ตัวอย่างก่อนถามจริง AI จะเข้าใจ pattern และทำตามได้แม่นยำกว่า", tags: ["prompt"], starred: false },
+  { id: "t34", categoryId: "ai", title: "Constraint Prompting", body: "ระบุข้อจำกัด: ความยาว, รูปแบบ, สิ่งที่ห้าม เช่น 'ตอบไม่เกิน 100 คำ, เป็น JSON, ห้ามใช้ bullet points' ได้ผลลัพธ์ตรงใจกว่า", tags: ["format"], starred: false },
+  { id: "t58", categoryId: "ai", title: "Output Format Lock", body: "ลงท้ายด้วย `Respond in JSON only` หรือ `Output as Markdown table` AI จะไม่ออกนอกฟอร์แมต ดีตอนต่อกับโค้ดอื่น", tags: ["format", "structured"], starred: false },
+  { id: "t59", categoryId: "ai", title: "Negative Prompting", body: "บอกสิ่งที่ **ไม่อยากได้** เช่น 'Don't use clichés, don't start with \"In today's world\"' ผลลัพธ์จะตรงใจขึ้นกว่าบอกแค่สิ่งที่อยากได้", tags: ["prompt"], starred: false },
+  { id: "t60", categoryId: "ai", title: "Iterative Refinement", body: "อย่าหวังครั้งเดียวจบ ตอบกลับด้วย 'ทำให้สั้นลง 30%', 'เปลี่ยน tone ให้เป็นทางการ', 'ขยายข้อ 2 ให้ละเอียด' — AI ดีตอน refine มากกว่าตอน generate ทีเดียวจบ", tags: ["workflow"], starred: true },
+
+  // Productivity
+  { id: "t35", categoryId: "productivity", title: "MIT (Most Important Task)", body: "เลือก 1-3 งานที่สำคัญที่สุดของวันตั้งแต่เช้า และทำมันก่อนเช็คอีเมลหรือ social media", tags: ["โฟกัส", "เช้า"], starred: true },
+  { id: "t36", categoryId: "productivity", title: "Inbox Zero ที่ทำได้จริง", body: "ใช้ 4D: Do (<2min ทำเลย), Defer (ตอบทีหลัง), Delegate (ส่งต่อ), Delete (ลบ) — จัดการอีเมลทีละฉบับ ไม่อ่านซ้ำ", tags: ["email"], starred: false },
+  { id: "t37", categoryId: "productivity", title: "Brain Dump ก่อนนอน", body: "เขียนทุกอย่างที่ค้างในหัวลงกระดาษ 5 นาทีก่อนนอน สมองจะปล่อยวางและหลับง่ายขึ้น ตื่นมาก็มี list พร้อมทำ", tags: ["นอน", "เคลียร์หัว"], starred: false },
+  { id: "t61", categoryId: "productivity", title: "Weekly Review", body: "ทุกวันศุกร์เย็น/อาทิตย์ ใช้ 30 นาที:\n- ทบทวนสิ่งที่ทำสำเร็จ\n- งานค้าง\n- วางแผนสัปดาห์ใหม่\n\nสิ่งเดียวที่ทำให้ระบบ productivity ไม่พัง", tags: ["GTD", "ทบทวน"], starred: true },
+  { id: "t62", categoryId: "productivity", title: "Energy Management", body: "อย่าจัดการแค่เวลา จัดการพลังงานด้วย — งานคิดหนักใส่ช่วง peak (เช้า), งาน admin ใส่ช่วง dip (บ่าย), ออกกำลังใส่ช่วงล้า", tags: ["พลังงาน"], starred: false },
+  { id: "t63", categoryId: "productivity", title: "Single-tasking", body: "Multitasking คือตำนาน สมองสลับงานเสียเวลา **23 นาที** กลับมาโฟกัสได้เท่าเดิม ปิด notification, ทำทีละอย่าง — งานเสร็จเร็วกว่า", tags: ["โฟกัส"], starred: false },
+
+  // นำเสนอ
+  { id: "t38", categoryId: "presentation", title: "1 Slide 1 Idea", body: "หนึ่งสไลด์ควรสื่อสารแค่ความคิดเดียว ถ้ามีสองอย่าง แยกเป็น 2 สไลด์ ผู้ฟังจะตามทันและจำได้", tags: ["slide", "design"], starred: true },
+  { id: "t39", categoryId: "presentation", title: "10-20-30 Rule (Guy Kawasaki)", body: "ไม่เกิน 10 สไลด์, ไม่เกิน 20 นาที, font ไม่ต่ำกว่า 30pt — หลักการนำเสนอที่ไม่ทำให้คนเบื่อ", tags: ["pitch"], starred: false },
+  { id: "t40", categoryId: "presentation", title: "Tell-Show-Tell", body: "บอกก่อนว่าจะพูดเรื่องอะไร → พูดเนื้อหา → สรุปสั้นๆ ว่าพูดอะไรไป สมองคนฟังจะจัดระเบียบและจำได้ดี", tags: ["พูด", "structure"], starred: false },
+  { id: "t64", categoryId: "presentation", title: "Open with a Question", body: "แทนที่จะเริ่มด้วย 'สวัสดีครับ วันนี้จะพูดเรื่อง...' ลองเปิดด้วยคำถามที่ทำให้ผู้ฟังคิด — สมองจะ engage ทันที", tags: ["opening"], starred: false },
+  { id: "t65", categoryId: "presentation", title: "Rule of Three", body: "จัดข้อมูลเป็นกลุ่มละ 3 เสมอ (3 ข้อหลัก, 3 เหตุผล) สมองคนจำกลุ่ม 3 ได้ง่ายที่สุด — มากกว่านี้คือลืม", tags: ["structure"], starred: false },
+  { id: "t66", categoryId: "presentation", title: "Pause is Power", body: "หยุด 2-3 วินาทีก่อนพูดประเด็นสำคัญ ผู้ฟังจะตั้งใจฟังโดยอัตโนมัติ คนกลัว silence แต่ silence คือเครื่องมือทรงพลังของ speaker", tags: ["พูด", "delivery"], starred: true },
+
+  // Color
+  { id: "t41", categoryId: "colorgrade", title: "Lift / Gamma / Gain", body: "Lift = แก้เงา, Gamma = กลางๆ, Gain = แก้ไฮไลต์ ปรับใน Lumetri Color (Premiere) หรือ Color Wheels ใน DaVinci ก่อน LUT เสมอ", tags: ["color"], starred: false },
+  { id: "t42", categoryId: "colorgrade", title: "Teal & Orange Look", body: "Push เงาไปฝั่ง Cyan/Teal, push ผิวคน/ไฮไลต์ไปฝั่ง Orange — โทนหนังฮอลลีวูดคลาสสิกที่ทำให้ผิวคนเด่นทันที", tags: ["look", "หนัง"], starred: true },
+  { id: "t43", categoryId: "colorgrade", title: "Scopes สำคัญกว่าตา", body: "อย่าเชื่อตาตัวเอง ดู Waveform (สว่าง-มืด) และ Vectorscope (สี) เป็นหลัก ตาเราหลอกได้ตลอดเพราะ adaptation", tags: ["scope"], starred: false },
+  { id: "t67", categoryId: "colorgrade", title: "Match Cuts ก่อน Grade", body: "Match สีระหว่างคลิป (`Lumetri → Match`) ให้ใกล้เคียงกันก่อนทำ creative grade ไม่งั้นจะ grade ทีละคลิปไม่จบ", tags: ["match", "workflow"], starred: false },
+  { id: "t68", categoryId: "colorgrade", title: "S-Curve คือพื้นฐาน", body: "ใน Curves ทำ **S-Curve** (เพิ่มมืดที่ shadow + เพิ่มสว่างที่ highlight) เพิ่ม contrast แบบ cinematic ทันที — ทำก่อน LUT เสมอ", tags: ["curve"], starred: false },
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════════════════
+const STORE_KEY = "kvault_tips_v2";
+const PREFS_KEY = "kvault_prefs_v2";
+
+let state = {
+  tips: [],
+  activeCat: "all",
+  search: "",
+  starredOnly: false,
+  viewMode: "grid",
+  sortBy: "newest",
+  theme: "light",
+  sidebarOpen: window.innerWidth >= 768,
+};
+let lastDeleted = null;
+let toastTimer = null;
+let modalState = null; // { mode: "add" | "edit", tip, tagInput, linkSearch }
+
+// ═══════════════════════════════════════════════════════════════════════════
+// PERSISTENCE
+// ═══════════════════════════════════════════════════════════════════════════
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) {
+      const existing = JSON.parse(raw);
+      // merge new built-in tips that don't exist yet
+      const existingIds = new Set(existing.map(t => t.id));
+      const newOnes = DEFAULT_TIPS.filter(t => !existingIds.has(t.id));
+      state.tips = newOnes.length ? [...existing, ...newOnes] : existing;
+      if (newOnes.length) saveTips();
+    } else {
+      state.tips = [...DEFAULT_TIPS];
+      saveTips();
+    }
+  } catch {
+    state.tips = [...DEFAULT_TIPS];
+  }
+  try {
+    const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) || "{}");
+    if (prefs.theme) state.theme = prefs.theme;
+    if (prefs.viewMode) state.viewMode = prefs.viewMode;
+    if (prefs.sortBy) state.sortBy = prefs.sortBy;
+  } catch {}
+}
+function saveTips() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state.tips)); } catch {}
+}
+function savePrefs() {
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify({ theme: state.theme, viewMode: state.viewMode, sortBy: state.sortBy })); } catch {}
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════════════════════════════════
+let _nextId = Date.now();
+function uid() { return `tip_${++_nextId}`; }
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+
+// Inline markdown + search highlight → HTML string (escaped)
+function renderInline(text, q) {
+  // Tokenize: code → bold → italic → link
+  const re = /(`[^`]+`)|(\*\*[^*]+\*\*)|(\*[^*]+\*)|(\[[^\]]+\]\([^)]+\))/g;
+  const parts = [];
+  let last = 0, m;
+  while ((m = re.exec(text)) !== null) {
+    if (m.index > last) parts.push({ type: "text", text: text.slice(last, m.index) });
+    const matched = m[0];
+    if (matched.startsWith("`")) parts.push({ type: "code", text: matched.slice(1, -1) });
+    else if (matched.startsWith("**")) parts.push({ type: "bold", text: matched.slice(2, -2) });
+    else if (matched.startsWith("*")) parts.push({ type: "italic", text: matched.slice(1, -1) });
+    else if (matched.startsWith("[")) {
+      const lm = /^\[([^\]]+)\]\(([^)]+)\)$/.exec(matched);
+      if (lm) parts.push({ type: "link", text: lm[1], href: lm[2] });
+    }
+    last = m.index + matched.length;
+  }
+  if (last < text.length) parts.push({ type: "text", text: text.slice(last) });
+
+  return parts.map(p => {
+    const inner = highlightHtml(p.text, q);
+    if (p.type === "code") return `<code>${inner}</code>`;
+    if (p.type === "bold") return `<strong>${inner}</strong>`;
+    if (p.type === "italic") return `<em>${inner}</em>`;
+    if (p.type === "link") return `<a href="${escapeHtml(p.href)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">${inner}</a>`;
+    return inner;
+  }).join("");
+}
+
+// search highlight on plain text → HTML
+function highlightHtml(text, q) {
+  if (!q) return escapeHtml(text);
+  const qLower = q.toLowerCase().trim();
+  if (!qLower) return escapeHtml(text);
+  const lower = text.toLowerCase();
+  let out = "", idx = 0;
+  let pos = lower.indexOf(qLower, idx);
+  while (pos !== -1) {
+    if (pos > idx) out += escapeHtml(text.slice(idx, pos));
+    out += `<mark>${escapeHtml(text.slice(pos, pos + qLower.length))}</mark>`;
+    idx = pos + qLower.length;
+    pos = lower.indexOf(qLower, idx);
+  }
+  if (idx < text.length) out += escapeHtml(text.slice(idx));
+  return out;
+}
+
+// Block-level: bullet list + paragraphs
+function renderMarkdown(text, q) {
+  if (!text) return "";
+  const lines = text.split("\n");
+  let html = "", i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (/^\s*[-•]\s+/.test(line)) {
+      html += "<ul>";
+      while (i < lines.length && /^\s*[-•]\s+/.test(lines[i])) {
+        const content = lines[i].replace(/^\s*[-•]\s+/, "");
+        html += `<li>${renderInline(content, q)}</li>`;
+        i++;
+      }
+      html += "</ul>";
+      continue;
+    }
+    if (line.trim() === "") {
+      html += '<div style="height:6px"></div>';
+      i++;
+      continue;
+    }
+    const paraLines = [];
+    while (i < lines.length && lines[i].trim() !== "" && !/^\s*[-•]\s+/.test(lines[i])) {
+      paraLines.push(lines[i]); i++;
+    }
+    html += paraLines.map(l => renderInline(l, q)).join("<br>");
+  }
+  return html;
+}
+
+function sortTips(arr) {
+  const copy = [...arr];
+  switch (state.sortBy) {
+    case "oldest": return copy.reverse();
+    case "az": return copy.sort((a, b) => a.title.localeCompare(b.title, "th"));
+    case "za": return copy.sort((a, b) => b.title.localeCompare(a.title, "th"));
+    case "starred": return copy.sort((a, b) => (b.starred ? 1 : 0) - (a.starred ? 1 : 0));
+    default: return copy;
+  }
+}
+
+function getFiltered() {
+  const q = state.search.toLowerCase().trim();
+  return sortTips(state.tips.filter(t => {
+    const inCat = state.activeCat === "all" || t.categoryId === state.activeCat;
+    const inStar = !state.starredOnly || t.starred;
+    const inSearch = !q || t.title.toLowerCase().includes(q) || t.body.toLowerCase().includes(q) || (t.tags || []).some(tg => tg.toLowerCase().includes(q));
+    return inCat && inStar && inSearch;
+  }));
+}
+
+function getCounts() {
+  const c = {};
+  CATEGORIES.forEach(cat => {
+    c[cat.id] = cat.id === "all" ? state.tips.length : state.tips.filter(t => t.categoryId === cat.id).length;
+  });
+  return c;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════════════
+function render() {
+  document.documentElement.setAttribute("data-theme", state.theme);
+  renderSidebar();
+  renderHeader();
+  renderHero();
+  renderTips();
+}
+
+function renderSidebar() {
+  const sb = document.getElementById("sidebar");
+  const backdrop = document.getElementById("backdrop");
+  if (state.sidebarOpen) {
+    sb.classList.remove("hidden");
+    if (window.innerWidth < 768) backdrop.classList.remove("hidden");
+    else backdrop.classList.add("hidden");
+  } else {
+    sb.classList.add("hidden");
+    backdrop.classList.add("hidden");
+  }
+
+  // starred toggle
+  const starredCount = state.tips.filter(t => t.starred).length;
+  document.getElementById("starred-toggle").innerHTML = `
+    <button class="kv-cat-item ${state.starredOnly ? "active" : ""}" data-act="starred-toggle">
+      <i class="ti ti-star${state.starredOnly ? "-filled" : ""}"></i>
+      <span class="label">เฉพาะที่ติดดาว</span>
+      ${starredCount > 0 ? `<span class="count">${starredCount}</span>` : ""}
+    </button>
+  `;
+
+  // categories
+  const counts = getCounts();
+  document.getElementById("nav").innerHTML = CATEGORIES.map(cat => `
+    <button class="kv-cat-item ${state.activeCat === cat.id ? "active" : ""}" style="--cat-color:${cat.color}" data-cat="${cat.id}">
+      <i class="ti ${cat.icon}" style="color:${cat.color}"></i>
+      <span class="label">${escapeHtml(cat.label)}</span>
+      ${counts[cat.id] > 0 ? `<span class="count">${counts[cat.id]}</span>` : ""}
+    </button>
+  `).join("");
+}
+
+function renderHeader() {
+  // search clear
+  document.getElementById("search").value = state.search;
+  document.getElementById("search-clear").classList.toggle("hidden", !state.search);
+  // viewmode
+  document.querySelectorAll(".kv-viewmode-btn").forEach(b => {
+    b.classList.toggle("active", b.dataset.view === state.viewMode);
+  });
+  // sort
+  const cur = SORT_OPTIONS.find(o => o.id === state.sortBy);
+  document.getElementById("sort-icon").className = `ti ${cur.icon}`;
+  document.getElementById("sort-label").textContent = cur.label;
+  document.getElementById("sort-menu").innerHTML = SORT_OPTIONS.map(opt => `
+    <button class="kv-menu-item ${state.sortBy === opt.id ? "active" : ""}" data-sort="${opt.id}">
+      <i class="ti ${opt.icon}"></i>
+      <span class="label">${escapeHtml(opt.label)}</span>
+      ${state.sortBy === opt.id ? '<i class="ti ti-check"></i>' : ""}
+    </button>
+  `).join("");
+  // theme icon
+  document.getElementById("theme-icon").className = `ti ${state.theme === "light" ? "ti-moon-filled" : "ti-sun-filled"}`;
+}
+
+function renderHero() {
+  const isFiltered = state.search || state.activeCat !== "all" || state.starredOnly;
+  const filtered = getFiltered();
+
+  if (isFiltered) {
+    let label = "เทคนิคในหมวดนี้";
+    if (state.search) label = `ผลการค้นหา "${escapeHtml(state.search)}"`;
+    else if (state.starredOnly) label = "เทคนิคที่ติดดาว";
+    document.getElementById("hero").innerHTML = `
+      <div class="kv-result-count">
+        <span class="kv-display num">${filtered.length}</span>
+        <span class="text">${label}</span>
+      </div>
+    `;
+    return;
+  }
+
+  const starred = state.tips.filter(t => t.starred).length;
+  const items = [
+    { label: "เทคนิคทั้งหมด", val: state.tips.length, icon: "ti-stack-2", accent: "var(--kv-accent)" },
+    { label: "ติดดาว", val: starred, icon: "ti-star-filled", accent: "#eab308" },
+    { label: "หมวดหมู่", val: CATEGORIES.length - 1, icon: "ti-folder", accent: "#0ea5e9" },
+  ];
+
+  document.getElementById("hero").innerHTML = `
+    <div class="kv-hero">
+      <div class="kv-hero-row">
+        <div>
+          <h1 class="kv-display kv-hero-title">คลังเทคนิคของฉัน</h1>
+          <div class="kv-hero-sub">เก็บความรู้ที่เจอมา ทบทวนได้ทุกเมื่อ</div>
+        </div>
+        <button class="kv-stats-btn" data-act="open-stats">
+          <i class="ti ti-chart-pie"></i>
+          ดูสถิติเชิงลึก
+        </button>
+      </div>
+      <div class="kv-stat-grid">
+        ${items.map((it, i) => `
+          <div class="kv-stat-card" style="animation-delay:${i * 60}ms">
+            <div class="kv-stat-icon" style="background:${it.accent}18">
+              <i class="ti ${it.icon}" style="color:${it.accent}"></i>
+            </div>
+            <div>
+              <div class="kv-stat-label">${escapeHtml(it.label)}</div>
+              <div class="kv-display kv-stat-val">${it.val}</div>
+            </div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderTips() {
+  const tips = getFiltered();
+  const container = document.getElementById("tips-container");
+
+  if (!tips.length) {
+    container.innerHTML = `
+      <div class="kv-empty">
+        <div class="kv-empty-icon"><i class="ti ${state.search ? "ti-search-off" : "ti-bulb"}"></i></div>
+        <div class="kv-display kv-empty-title">${state.search ? "ไม่พบผลลัพธ์" : "ยังว่างเปล่า"}</div>
+        <div class="kv-empty-sub">${state.search ? "ลองคำค้นอื่น หรือล้างตัวกรอง" : "เพิ่มเทคนิคแรกของคุณได้เลย"}</div>
+        <div class="kv-empty-actions">
+          ${(state.search || state.activeCat !== "all" || state.starredOnly) ? '<button class="kv-btn-secondary" data-act="clear-filters">ล้างตัวกรอง</button>' : ""}
+          <button class="kv-btn-primary" data-act="open-add"><i class="ti ti-plus"></i>เพิ่มเทคนิค</button>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  const tipsById = Object.fromEntries(state.tips.map(t => [t.id, t]));
+
+  if (state.viewMode === "list") {
+    container.innerHTML = `<div class="kv-tips-list">${tips.map((t, i) => renderRow(t, i)).join("")}</div>`;
+  } else {
+    container.innerHTML = `<div class="kv-tips-grid">${tips.map((t, i) => renderCard(t, i, tipsById)).join("")}</div>`;
+  }
+}
+
+function renderCard(tip, i, tipsById) {
+  const cat = CAT_MAP[tip.categoryId] || CAT_MAP.other;
+  const linked = (tip.linkedIds || []).map(id => tipsById[id]).filter(Boolean);
+  const delay = Math.min(i * 25, 400);
+  return `
+    <article class="kv-card" style="--cat-color:${cat.color}; animation-delay:${delay}ms">
+      <div class="kv-card-head">
+        <div class="kv-card-cat">
+          <i class="ti ${cat.icon}" style="color:${cat.color}"></i>
+          <span>${escapeHtml(cat.label)}</span>
+        </div>
+        <button class="kv-star-btn ${tip.starred ? "starred" : ""}" data-act="star" data-id="${tip.id}" aria-label="star">
+          <i class="ti ${tip.starred ? "ti-star-filled" : "ti-star"}"></i>
+        </button>
+      </div>
+      <h3 class="kv-display kv-card-title">${highlightHtml(tip.title, state.search)}</h3>
+      <div class="kv-card-body">${renderMarkdown(tip.body, state.search)}</div>
+      ${(tip.tags || []).length ? `<div class="kv-tags">${tip.tags.map(t => `<span class="kv-tag">#${escapeHtml(t)}</span>`).join("")}</div>` : ""}
+      ${linked.length ? `
+        <div class="kv-linked">
+          <span class="kv-linked-label"><i class="ti ti-link"></i>ที่เกี่ยวข้อง:</span>
+          ${linked.map(l => {
+            const lc = CAT_MAP[l.categoryId] || CAT_MAP.other;
+            return `<button class="kv-link-btn" data-act="open-linked" data-id="${l.id}"><i class="ti ${lc.icon}" style="color:${lc.color}"></i>${escapeHtml(l.title)}</button>`;
+          }).join("")}
+        </div>
+      ` : ""}
+      <div class="kv-card-actions">
+        <button class="kv-action-btn" data-act="copy" data-id="${tip.id}" title="คัดลอก"><i class="ti ti-copy"></i></button>
+        <button class="kv-action-btn" data-act="edit" data-id="${tip.id}" title="แก้ไข"><i class="ti ti-edit"></i></button>
+        <button class="kv-action-btn danger" data-act="delete" data-id="${tip.id}" title="ลบ"><i class="ti ti-trash"></i></button>
+      </div>
+    </article>
+  `;
+}
+
+function renderRow(tip, i) {
+  const cat = CAT_MAP[tip.categoryId] || CAT_MAP.other;
+  const delay = Math.min(i * 25, 400);
+  const tagsHtml = (tip.tags || []).slice(0, 3).map(t => `<span class="kv-tag" style="font-size:10px;padding:1px 6px">#${escapeHtml(t)}</span>`).join("");
+  return `
+    <article class="kv-row" style="--cat-color:${cat.color}; animation-delay:${delay}ms" data-id="${tip.id}">
+      <div class="kv-row-bar"></div>
+      <div class="kv-row-content">
+        <div class="kv-row-meta">
+          <i class="ti ${cat.icon}" style="color:${cat.color}"></i>
+          <span class="cat-name">${escapeHtml(cat.label)}</span>
+          ${tip.starred ? '<i class="ti ti-star-filled" style="color:#eab308;font-size:13px"></i>' : ""}
+          ${tagsHtml}
+        </div>
+        <h3 class="kv-display kv-row-title">${highlightHtml(tip.title, state.search)}</h3>
+        <div class="kv-row-body">${renderMarkdown(tip.body, state.search)}</div>
+      </div>
+      <div class="kv-row-actions" data-stop="1">
+        <button class="kv-action-btn ${tip.starred ? "" : ""}" style="color:${tip.starred ? "#eab308" : "var(--kv-text-subtle)"}" data-act="star" data-id="${tip.id}" title="ติดดาว">
+          <i class="ti ${tip.starred ? "ti-star-filled" : "ti-star"}"></i>
+        </button>
+        <button class="kv-action-btn" data-act="copy" data-id="${tip.id}" title="คัดลอก"><i class="ti ti-copy"></i></button>
+        <button class="kv-action-btn" data-act="edit" data-id="${tip.id}" title="แก้ไข"><i class="ti ti-edit"></i></button>
+        <button class="kv-action-btn danger" data-act="delete" data-id="${tip.id}" title="ลบ"><i class="ti ti-trash"></i></button>
+      </div>
+    </article>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════════════════════════
+function setActiveCat(id) {
+  state.activeCat = id;
+  if (window.innerWidth < 768) state.sidebarOpen = false;
+  render();
+}
+
+function toggleStar(id) {
+  const t = state.tips.find(t => t.id === id);
+  if (!t) return;
+  t.starred = !t.starred;
+  saveTips();
+  render();
+}
+
+function copyTip(id) {
+  const t = state.tips.find(t => t.id === id);
+  if (!t) return;
+  const cat = CAT_MAP[t.categoryId];
+  const text = `${t.title}\n[${cat.label}]\n\n${t.body}${t.tags?.length ? `\n\nTags: ${t.tags.map(x => `#${x}`).join(" ")}` : ""}`;
+  navigator.clipboard.writeText(text).then(
+    () => showToast("คัดลอกแล้ว"),
+    () => showToast("คัดลอกไม่สำเร็จ", "danger")
+  );
+}
+
+function deleteTip(id) {
+  const idx = state.tips.findIndex(t => t.id === id);
+  if (idx === -1) return;
+  lastDeleted = { tip: state.tips[idx], index: idx };
+  state.tips.splice(idx, 1);
+  saveTips();
+  closeModal();
+  showToast("ลบแล้ว", "danger", { label: "เลิกทำ", run: undoDelete });
+  render();
+}
+
+function undoDelete() {
+  if (!lastDeleted) return;
+  state.tips.splice(lastDeleted.index, 0, lastDeleted.tip);
+  lastDeleted = null;
+  saveTips();
+  closeToast();
+  showToast("กู้คืนแล้ว");
+  render();
+}
+
+function exportJSON() {
+  const data = JSON.stringify({ version: 2, exportedAt: new Date().toISOString(), tips: state.tips }, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `knowledge-vault-${new Date().toISOString().slice(0, 10)}.json`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast(`ส่งออก ${state.tips.length} เทคนิคแล้ว`);
+}
+
+function importJSON(file) {
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const parsed = JSON.parse(e.target.result);
+      const incoming = Array.isArray(parsed) ? parsed : parsed.tips;
+      if (!Array.isArray(incoming)) throw new Error("invalid");
+      const existing = new Set(state.tips.map(t => `${t.title}|${t.body}`));
+      const fresh = incoming
+        .filter(t => t && t.title && t.body && !existing.has(`${t.title}|${t.body}`))
+        .map(t => ({ ...t, id: uid(), categoryId: CAT_MAP[t.categoryId] ? t.categoryId : "other", tags: Array.isArray(t.tags) ? t.tags : [] }));
+      if (!fresh.length) { showToast("ไม่มีเทคนิคใหม่ที่จะนำเข้า", "danger"); return; }
+      state.tips = [...fresh, ...state.tips];
+      saveTips();
+      render();
+      showToast(`นำเข้า ${fresh.length} เทคนิคแล้ว`);
+    } catch {
+      showToast("ไฟล์ไม่ถูกต้อง", "danger");
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════════════════════════
+function openAdd() {
+  const initCat = state.activeCat === "all" ? "time" : state.activeCat;
+  modalState = {
+    mode: "add",
+    tip: { id: uid(), categoryId: initCat, title: "", body: "", tags: [], starred: false, linkedIds: [] },
+    tagInput: "", linkSearch: "",
+  };
+  renderTipModal();
+}
+
+function openEdit(id) {
+  const t = state.tips.find(t => t.id === id);
+  if (!t) return;
+  modalState = {
+    mode: "edit",
+    tip: { ...t, tags: [...(t.tags || [])], linkedIds: [...(t.linkedIds || [])] },
+    tagInput: "", linkSearch: "",
+  };
+  renderTipModal();
+}
+
+function closeModal() {
+  modalState = null;
+  document.getElementById("modal-root").innerHTML = "";
+}
+
+function saveModalTip() {
+  const f = modalState.tip;
+  if (!f.title.trim() || !f.body.trim()) return;
+  if (modalState.mode === "add") { state.tips = [f, ...state.tips]; showToast("เพิ่มเทคนิคแล้ว"); }
+  else { state.tips = state.tips.map(t => t.id === f.id ? f : t); showToast("บันทึกแล้ว"); }
+  saveTips();
+  closeModal();
+  render();
+}
+
+function renderTipModal() {
+  if (!modalState) return;
+  const { mode, tip, tagInput, linkSearch } = modalState;
+  const err = !tip.title.trim() || !tip.body.trim();
+
+  // tag suggestions
+  const allTags = [...new Set(state.tips.flatMap(t => t.tags || []))].sort((a, b) => a.localeCompare(b, "th"));
+  const q = tagInput.trim().toLowerCase();
+  const tagSuggest = q ? allTags.filter(t => t.toLowerCase().includes(q) && !(tip.tags || []).includes(t)).slice(0, 6) : [];
+
+  // link suggestions
+  const lq = linkSearch.toLowerCase().trim();
+  const linkCands = state.tips
+    .filter(t => t.id !== tip.id && !(tip.linkedIds || []).includes(t.id))
+    .filter(t => !lq || t.title.toLowerCase().includes(lq))
+    .slice(0, 8);
+
+  const linkedTips = (tip.linkedIds || []).map(id => state.tips.find(t => t.id === id)).filter(Boolean);
+
+  document.getElementById("modal-root").innerHTML = `
+    <div class="kv-overlay" data-act="close-on-overlay">
+      <div class="kv-modal">
+        <div class="kv-modal-head">
+          <h2 class="kv-display kv-modal-title">${mode === "add" ? "เพิ่มเทคนิคใหม่" : "แก้ไขเทคนิค"}</h2>
+          <button class="kv-icon-btn" data-act="modal-close" aria-label="close"><i class="ti ti-x"></i></button>
+        </div>
+
+        <div class="kv-field">
+          <div class="kv-field-label"><label>หมวดหมู่</label></div>
+          <select class="kv-input" id="m-cat">
+            ${CATEGORIES.filter(c => c.id !== "all").map(c => `<option value="${c.id}" ${tip.categoryId === c.id ? "selected" : ""}>${escapeHtml(c.label)}</option>`).join("")}
+          </select>
+        </div>
+
+        <div class="kv-field">
+          <div class="kv-field-label"><label>ชื่อเทคนิค<span class="kv-field-required">*</span></label></div>
+          <input class="kv-input" id="m-title" placeholder="เช่น Pomodoro Technique" value="${escapeHtml(tip.title)}" />
+        </div>
+
+        <div class="kv-field">
+          <div class="kv-field-label">
+            <label>รายละเอียด<span class="kv-field-required">*</span></label>
+            <span class="kv-field-hint">รองรับ **bold** · *italic* · \`code\` · [link](url) · - bullet</span>
+          </div>
+          <textarea class="kv-input" id="m-body" placeholder="อธิบายวิธีการ เหตุผล หรือตัวอย่างการใช้งาน..." rows="5">${escapeHtml(tip.body)}</textarea>
+        </div>
+
+        <div class="kv-field">
+          <div class="kv-field-label"><label>แท็ก</label></div>
+          <div class="kv-tag-row">
+            <input class="kv-input" id="m-tag-input" placeholder="พิมพ์แล้วกด Enter — มีคำแนะนำให้เลือก" value="${escapeHtml(tagInput)}" autocomplete="off" />
+            <button class="kv-btn-secondary" data-act="add-tag-btn">เพิ่ม</button>
+          </div>
+          ${tagSuggest.length ? `
+            <div class="kv-suggest" id="tag-suggest">
+              ${tagSuggest.map(s => `<button class="kv-suggest-item" data-act="pick-tag" data-val="${escapeHtml(s)}"><i class="ti ti-hash"></i><span>${escapeHtml(s)}</span></button>`).join("")}
+            </div>
+          ` : ""}
+          ${(tip.tags || []).length ? `
+            <div class="kv-tags" style="margin-top:8px">
+              ${tip.tags.map(t => `
+                <span class="kv-tag kv-removable-tag">#${escapeHtml(t)}<button data-act="remove-tag" data-val="${escapeHtml(t)}">×</button></span>
+              `).join("")}
+            </div>
+          ` : ""}
+        </div>
+
+        <div class="kv-field">
+          <div class="kv-field-label">
+            <label>เทคนิคที่เกี่ยวข้อง</label>
+            <span class="kv-field-hint">ลิงก์ไปยังเทคนิคอื่น</span>
+          </div>
+          <input class="kv-input" id="m-link-input" placeholder="ค้นหาเทคนิคเพื่อเชื่อม..." value="${escapeHtml(linkSearch)}" autocomplete="off" />
+          ${(linkSearch && linkCands.length) ? `
+            <div class="kv-suggest" id="link-suggest">
+              ${linkCands.map(l => {
+                const c = CAT_MAP[l.categoryId] || CAT_MAP.other;
+                return `<button class="kv-suggest-item" data-act="pick-link" data-id="${l.id}">
+                  <i class="ti ${c.icon}" style="color:${c.color}"></i>
+                  <span class="ellipsis">${escapeHtml(l.title)}</span>
+                  <span class="small">${escapeHtml(c.label)}</span>
+                </button>`;
+              }).join("")}
+            </div>
+          ` : ""}
+          ${linkedTips.length ? `
+            <div class="kv-tags" style="margin-top:8px">
+              ${linkedTips.map(l => {
+                const c = CAT_MAP[l.categoryId] || CAT_MAP.other;
+                return `<span class="kv-linked-pill">
+                  <i class="ti ${c.icon}" style="color:${c.color}"></i>${escapeHtml(l.title)}
+                  <button data-act="remove-link" data-id="${l.id}" style="border:none;background:none;padding:0;color:var(--kv-text-muted);line-height:1;font-size:15px;cursor:pointer">×</button>
+                </span>`;
+              }).join("")}
+            </div>
+          ` : ""}
+        </div>
+
+        <label class="kv-star-toggle ${tip.starred ? "active" : ""}">
+          <input type="checkbox" id="m-starred" ${tip.starred ? "checked" : ""} />
+          <i class="ti ${tip.starred ? "ti-star-filled" : "ti-star"}"></i>
+          <span class="kv-star-toggle-text">ติดดาว (รายการโปรด)</span>
+        </label>
+
+        <div class="kv-modal-actions">
+          <button class="kv-btn kv-btn-ghost" data-act="modal-close">ยกเลิก</button>
+          <button class="kv-btn kv-btn-accent" data-act="modal-save" ${err ? "disabled" : ""}>${mode === "add" ? "เพิ่มเทคนิค" : "บันทึก"}</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Bind inputs
+  const titleEl = document.getElementById("m-title");
+  titleEl.focus();
+  titleEl.addEventListener("input", e => { modalState.tip.title = e.target.value; updateSaveBtn(); });
+  document.getElementById("m-cat").addEventListener("change", e => { modalState.tip.categoryId = e.target.value; });
+  document.getElementById("m-body").addEventListener("input", e => { modalState.tip.body = e.target.value; updateSaveBtn(); });
+  const tagInputEl = document.getElementById("m-tag-input");
+  tagInputEl.addEventListener("input", e => { modalState.tagInput = e.target.value; renderTipModal(); document.getElementById("m-tag-input")?.focus(); document.getElementById("m-tag-input").setSelectionRange(e.target.value.length, e.target.value.length); });
+  tagInputEl.addEventListener("keydown", e => {
+    if (e.key === "Enter") { e.preventDefault(); addTagFromInput(); }
+  });
+  const linkInputEl = document.getElementById("m-link-input");
+  linkInputEl.addEventListener("input", e => {
+    modalState.linkSearch = e.target.value;
+    renderTipModal();
+    document.getElementById("m-link-input")?.focus();
+    const v = e.target.value;
+    document.getElementById("m-link-input").setSelectionRange(v.length, v.length);
+  });
+  document.getElementById("m-starred").addEventListener("change", e => {
+    modalState.tip.starred = e.target.checked;
+    renderTipModal();
+  });
+}
+
+function updateSaveBtn() {
+  const btn = document.querySelector('[data-act="modal-save"]');
+  if (!btn || !modalState) return;
+  btn.disabled = !modalState.tip.title.trim() || !modalState.tip.body.trim();
+}
+
+function addTagFromInput() {
+  const t = modalState.tagInput.trim();
+  if (!t) return;
+  if (!modalState.tip.tags) modalState.tip.tags = [];
+  if (!modalState.tip.tags.includes(t)) modalState.tip.tags.push(t);
+  modalState.tagInput = "";
+  renderTipModal();
+}
+
+function pickTag(val) {
+  if (!modalState.tip.tags) modalState.tip.tags = [];
+  if (!modalState.tip.tags.includes(val)) modalState.tip.tags.push(val);
+  modalState.tagInput = "";
+  renderTipModal();
+}
+
+function removeTag(val) {
+  modalState.tip.tags = (modalState.tip.tags || []).filter(t => t !== val);
+  renderTipModal();
+}
+
+function pickLink(id) {
+  if (!modalState.tip.linkedIds) modalState.tip.linkedIds = [];
+  if (!modalState.tip.linkedIds.includes(id)) modalState.tip.linkedIds.push(id);
+  modalState.linkSearch = "";
+  renderTipModal();
+}
+
+function removeLink(id) {
+  modalState.tip.linkedIds = (modalState.tip.linkedIds || []).filter(x => x !== id);
+  renderTipModal();
+}
+
+// Confirm delete modal
+function openConfirmDelete(id) {
+  document.getElementById("modal-root").innerHTML = `
+    <div class="kv-overlay" data-act="close-on-overlay" style="z-index:200">
+      <div class="kv-confirm">
+        <div class="kv-confirm-icon"><i class="ti ti-trash"></i></div>
+        <h3 class="kv-display kv-confirm-title">ลบเทคนิคนี้?</h3>
+        <p class="kv-confirm-text">คุณสามารถกู้คืนได้ทันทีหลังลบ</p>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button class="kv-btn kv-btn-ghost" data-act="modal-close">ยกเลิก</button>
+          <button class="kv-btn kv-btn-danger" data-act="confirm-delete" data-id="${id}">ลบเลย</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Stats modal
+function openStats() {
+  const byCategory = CATEGORIES.filter(c => c.id !== "all").map(c => ({
+    ...c, count: state.tips.filter(t => t.categoryId === c.id).length
+  })).sort((a, b) => b.count - a.count);
+
+  const tagCount = {};
+  state.tips.forEach(t => (t.tags || []).forEach(tg => { tagCount[tg] = (tagCount[tg] || 0) + 1; }));
+  const topTags = Object.entries(tagCount).sort((a, b) => b[1] - a[1]).slice(0, 10);
+
+  const max = Math.max(...byCategory.map(c => c.count), 1);
+  const total = state.tips.length;
+  const starred = state.tips.filter(t => t.starred).length;
+  const linked = state.tips.filter(t => (t.linkedIds || []).length > 0).length;
+  const taggedAvg = total ? (state.tips.reduce((s, t) => s + (t.tags?.length || 0), 0) / total).toFixed(1) : "0";
+  const empty = byCategory.filter(c => c.count === 0);
+
+  const insights = [];
+  if (total === 0) insights.push("ยังไม่มีเทคนิคในคลัง เริ่มเพิ่มได้เลย");
+  if (total > 0 && byCategory[0].count > 0) insights.push(`หมวดที่เก็บมากที่สุดคือ <strong>${escapeHtml(byCategory[0].label)}</strong> (${byCategory[0].count} ข้อ)`);
+  if (empty.length > 0 && empty.length < 6) insights.push(`ยังไม่มีเทคนิคใน <strong>${empty.map(c => escapeHtml(c.label)).join(", ")}</strong> ลองเพิ่มดู`);
+  if (total >= 10 && starred / total < 0.15) insights.push(`ติดดาวแค่ ${((starred/total)*100).toFixed(0)}% — มาร์คเทคนิคโปรดเพิ่ม จะหาง่ายขึ้น`);
+  if (total >= 10 && linked / total < 0.2) insights.push(`มีแค่ ${linked} เทคนิคที่เชื่อมโยงกัน — ลองลิงก์เทคนิคที่ใช้ด้วยกัน`);
+  if (total >= 5 && parseFloat(taggedAvg) < 1.5) insights.push(`แท็กเฉลี่ย ${taggedAvg} ต่อเทคนิค — แท็กเยอะขึ้นจะช่วยให้ค้นหาเจอง่าย`);
+
+  document.getElementById("modal-root").innerHTML = `
+    <div class="kv-overlay" data-act="close-on-overlay" style="z-index:200">
+      <div class="kv-modal kv-stats-modal">
+        <div class="kv-modal-head">
+          <div>
+            <h2 class="kv-display kv-modal-title">สถิติคลังความรู้</h2>
+            <div class="kv-modal-sub">ภาพรวมและจุดที่ควรพัฒนา</div>
+          </div>
+          <button class="kv-icon-btn" data-act="modal-close" aria-label="close"><i class="ti ti-x"></i></button>
+        </div>
+
+        <div class="kv-stats-grid">
+          ${[
+            { label: "ทั้งหมด", val: total, color: "var(--kv-accent)" },
+            { label: "ติดดาว", val: starred, color: "#eab308" },
+            { label: "มีลิงก์", val: linked, color: "#0ea5e9" },
+            { label: "แท็ก/เทคนิค", val: taggedAvg, color: "#10b981" },
+          ].map(m => `
+            <div class="kv-stats-tile">
+              <div class="kv-stats-tile-label">${escapeHtml(m.label)}</div>
+              <div class="kv-stats-tile-val" style="color:${m.color}">${m.val}</div>
+            </div>
+          `).join("")}
+        </div>
+
+        <h3 class="kv-stats-section-label">การกระจายตามหมวด</h3>
+        <div style="margin-bottom:18px">
+          ${byCategory.map(cat => {
+            const pct = total > 0 ? (cat.count / total) * 100 : 0;
+            const widthPct = (cat.count / max) * 100;
+            return `
+              <div class="kv-bar-row">
+                <div class="kv-bar-label">
+                  <i class="ti ${cat.icon}" style="color:${cat.color}"></i>
+                  <span>${escapeHtml(cat.label)}</span>
+                </div>
+                <div class="kv-bar-track">
+                  <div class="kv-bar-fill" style="width:${widthPct}%;background:${cat.color};opacity:${cat.count === 0 ? 0 : 1}"></div>
+                </div>
+                <div class="kv-bar-num">${cat.count} <span class="pct">(${pct.toFixed(0)}%)</span></div>
+              </div>
+            `;
+          }).join("")}
+        </div>
+
+        ${topTags.length ? `
+          <h3 class="kv-stats-section-label">แท็กยอดนิยม</h3>
+          <div class="kv-tag-cloud" style="margin-bottom:18px">
+            ${topTags.map(([tag, count]) => `<span class="kv-cloud-tag">#${escapeHtml(tag)}<span class="kv-cloud-count">${count}</span></span>`).join("")}
+          </div>
+        ` : ""}
+
+        ${insights.length ? `
+          <div class="kv-insights">
+            <h3><i class="ti ti-bulb"></i>ข้อสังเกต</h3>
+            <ul>${insights.map(s => `<li>${s}</li>`).join("")}</ul>
+          </div>
+        ` : ""}
+      </div>
+    </div>
+  `;
+}
+
+// Shortcuts modal
+function openShortcuts() {
+  const shortcuts = [
+    { keys: ["/"], label: "โฟกัสช่องค้นหา" },
+    { keys: ["⌘", "K"], label: "โฟกัสช่องค้นหา" },
+    { keys: ["N"], label: "เพิ่มเทคนิคใหม่" },
+    { keys: ["T"], label: "สลับธีม Light/Dark" },
+    { keys: ["S"], label: "เปิดสถิติเชิงลึก" },
+    { keys: ["?"], label: "เปิด/ปิดหน้านี้" },
+    { keys: ["Esc"], label: "ปิดหน้าต่าง/ล้างค้นหา" },
+  ];
+  document.getElementById("modal-root").innerHTML = `
+    <div class="kv-overlay" data-act="close-on-overlay" style="z-index:200">
+      <div class="kv-modal" style="max-width:420px">
+        <div class="kv-modal-head">
+          <h2 class="kv-display kv-modal-title">ทางลัดคีย์บอร์ด</h2>
+          <button class="kv-icon-btn" data-act="modal-close" aria-label="close"><i class="ti ti-x"></i></button>
+        </div>
+        ${shortcuts.map(s => `
+          <div class="kv-shortcut-row">
+            <span>${escapeHtml(s.label)}</span>
+            <div class="kv-shortcut-keys">${s.keys.map(k => `<span class="kbd">${escapeHtml(k)}</span>`).join("")}</div>
+          </div>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════════════════════════
+function showToast(msg, type = "success", action = null) {
+  closeToast();
+  const root = document.getElementById("toast-root");
+  root.innerHTML = `
+    <div class="kv-toast ${type === "danger" ? "danger" : ""}">
+      <i class="ti ${type === "danger" ? "ti-trash" : "ti-check"} toast-icon"></i>
+      <span class="msg">${escapeHtml(msg)}</span>
+      ${action ? `<button class="kv-toast-action" data-act="toast-action">${escapeHtml(action.label)}</button>` : ""}
+      <button class="kv-toast-close" data-act="toast-close" aria-label="close"><i class="ti ti-x"></i></button>
+    </div>
+  `;
+  if (action) toastCurrentAction = action;
+  toastTimer = setTimeout(closeToast, action ? 5000 : 2500);
+}
+let toastCurrentAction = null;
+function closeToast() {
+  clearTimeout(toastTimer);
+  document.getElementById("toast-root").innerHTML = "";
+  toastCurrentAction = null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EVENT DELEGATION
+// ═══════════════════════════════════════════════════════════════════════════
+document.addEventListener("click", (e) => {
+  // Backdrop
+  if (e.target.id === "backdrop") { state.sidebarOpen = false; render(); return; }
+  // Overlay clicks (modal close on bg)
+  const overlay = e.target.closest('[data-act="close-on-overlay"]');
+  if (overlay && e.target === overlay) { closeModal(); return; }
+
+  // Find data-act
+  const actEl = e.target.closest("[data-act]");
+  if (actEl) {
+    const act = actEl.dataset.act;
+    const id = actEl.dataset.id;
+    const val = actEl.dataset.val;
+
+    if (act === "starred-toggle") { state.starredOnly = !state.starredOnly; render(); return; }
+    if (act === "open-stats") { openStats(); return; }
+    if (act === "open-add") { openAdd(); return; }
+    if (act === "clear-filters") { state.activeCat = "all"; state.search = ""; state.starredOnly = false; render(); return; }
+    if (act === "star") { toggleStar(id); return; }
+    if (act === "copy") { copyTip(id); return; }
+    if (act === "edit") { openEdit(id); return; }
+    if (act === "delete") { openConfirmDelete(id); return; }
+    if (act === "confirm-delete") { deleteTip(id); return; }
+    if (act === "open-linked") { openEdit(id); return; }
+    if (act === "modal-close") { closeModal(); return; }
+    if (act === "modal-save") { saveModalTip(); return; }
+    if (act === "add-tag-btn") { addTagFromInput(); return; }
+    if (act === "pick-tag") { pickTag(val); return; }
+    if (act === "remove-tag") { removeTag(val); return; }
+    if (act === "pick-link") { pickLink(id); return; }
+    if (act === "remove-link") { removeLink(id); return; }
+    if (act === "toast-action") { if (toastCurrentAction) toastCurrentAction.run(); return; }
+    if (act === "toast-close") { closeToast(); return; }
+  }
+
+  // Category select
+  const catEl = e.target.closest("[data-cat]");
+  if (catEl) { setActiveCat(catEl.dataset.cat); return; }
+
+  // Sort menu items
+  const sortEl = e.target.closest("[data-sort]");
+  if (sortEl) {
+    state.sortBy = sortEl.dataset.sort;
+    savePrefs();
+    document.getElementById("sort-menu").classList.add("hidden");
+    render();
+    return;
+  }
+
+  // View mode
+  const vmEl = e.target.closest("[data-view]");
+  if (vmEl) { state.viewMode = vmEl.dataset.view; savePrefs(); render(); return; }
+
+  // Row clicks → expand
+  const row = e.target.closest(".kv-row");
+  if (row && !e.target.closest('[data-stop="1"]')) {
+    row.classList.toggle("expanded");
+  }
+
+  // Header buttons
+  if (e.target.closest("#toggle-sidebar")) { state.sidebarOpen = !state.sidebarOpen; render(); return; }
+  if (e.target.closest("#theme-toggle")) { state.theme = state.theme === "light" ? "dark" : "light"; savePrefs(); render(); return; }
+  if (e.target.closest("#add-btn")) { openAdd(); return; }
+  if (e.target.closest("#search-clear")) { state.search = ""; render(); document.getElementById("search").focus(); return; }
+  if (e.target.closest("#sort-btn")) {
+    document.getElementById("sort-menu").classList.toggle("hidden");
+    document.getElementById("more-menu").classList.add("hidden");
+    return;
+  }
+  if (e.target.closest("#more-btn")) {
+    document.getElementById("more-menu").classList.toggle("hidden");
+    document.getElementById("sort-menu").classList.add("hidden");
+    return;
+  }
+
+  // More menu actions
+  const mAct = e.target.closest("[data-action]");
+  if (mAct) {
+    const a = mAct.dataset.action;
+    document.getElementById("more-menu").classList.add("hidden");
+    if (a === "stats") openStats();
+    else if (a === "export") exportJSON();
+    else if (a === "import") document.getElementById("file-input").click();
+    else if (a === "shortcuts") openShortcuts();
+    return;
+  }
+
+  // Close dropdowns when clicking outside
+  if (!e.target.closest("#sort-btn, #sort-menu")) {
+    document.getElementById("sort-menu").classList.add("hidden");
+  }
+  if (!e.target.closest("#more-btn, #more-menu")) {
+    document.getElementById("more-menu").classList.add("hidden");
+  }
+});
+
+// Search input
+document.getElementById("search").addEventListener("input", (e) => {
+  state.search = e.target.value;
+  renderHero();
+  renderTips();
+  document.getElementById("search-clear").classList.toggle("hidden", !state.search);
+});
+
+// File import
+document.getElementById("file-input").addEventListener("change", (e) => {
+  const f = e.target.files?.[0];
+  if (f) importJSON(f);
+  e.target.value = "";
+});
+
+// Keyboard shortcuts
+document.addEventListener("keydown", (e) => {
+  const isInput = ["INPUT", "TEXTAREA", "SELECT"].includes(e.target.tagName);
+
+  if (e.key === "Escape") {
+    if (modalState || document.getElementById("modal-root").innerHTML) closeModal();
+    else if (state.search && isInput) { state.search = ""; render(); }
+    return;
+  }
+  if (isInput) return;
+
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") { e.preventDefault(); document.getElementById("search").focus(); return; }
+  if (e.key === "/") { e.preventDefault(); document.getElementById("search").focus(); return; }
+  if (e.key.toLowerCase() === "n") { e.preventDefault(); openAdd(); return; }
+  if (e.key === "?") { e.preventDefault(); openShortcuts(); return; }
+  if (e.key.toLowerCase() === "t") { state.theme = state.theme === "light" ? "dark" : "light"; savePrefs(); render(); return; }
+  if (e.key.toLowerCase() === "s") { e.preventDefault(); openStats(); return; }
+});
+
+// Window resize
+window.addEventListener("resize", () => {
+  if (window.innerWidth >= 768) {
+    document.getElementById("backdrop").classList.add("hidden");
+  }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════
+// BOOT
+// ═══════════════════════════════════════════════════════════════════════════
+loadState();
+render();
+</script>
+</body>
+</html>
